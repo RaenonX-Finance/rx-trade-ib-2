@@ -1,0 +1,8 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CSDKs_005Ctws_002Dapi_002D10_002E19_005Csource_005CCSharpClient_005Cclient_005Cbin_005CRelease_005Cnet7_002E0_005Cwin_002Dx64_005Cpublish_005CCSharpAPI_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=C_003A_005CUsers_005CRaenonX_005CDocuments_005CProjects_005CTrading_005Crx_002Dtrade_002Dib_002D2_005CDependencies_005CIBKR_002EAPI_002Edll/@EntryIndexedValue">True</s:Boolean>
+	
+	
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="C:\Users\RaenonX\Documents\Projects\Trading\rx-trade-ib-2\Dependencies\IBKR.API.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>
