@@ -11,17 +11,32 @@ internal class UtcTimestampEnricher : ILogEventEnricher {
     }
 }
 
-public static class LoggingHelper {
+public class LoggingHelper {
     private const string OutputTemplate =
         "{TimestampUtc:yyyy-MM-dd HH:mm:ss.fff} [{ProcessId,6}] [{ThreadId,3}] "
         + "{SourceContext,52} [{Level:u1}] {Message:lj}{NewLine}{Exception}";
 
-    public static void Initialize(string? logDir, bool isDev, bool isProd, IConfiguration? config) {
+    private IConfiguration Config { get; }
+    
+    private IHostEnvironment Host { get; }
+
+    public LoggingHelper(IConfiguration config, IHostEnvironment host) {
+        Config = config;
+        Host = host;
+    }
+
+    public void Initialize() {
+        var logDir = Config.GetSection("Logging").GetSection("Additional").GetValue<string>("FileDirectory");
+        
+        Initialize(logDir, Host.IsDevelopment(), Host.IsProduction());
+    }
+
+    private void Initialize(string? logDir, bool isDev, bool isProd) {
         var appName = AppNameManager.GetAppName(isDev, isProd);
 
         var loggerConfig = new LoggerConfiguration()
-            .Enrich.WithThreadId()
             .Enrich.WithProcessId()
+            .Enrich.WithThreadId()
             .Enrich.With(new UtcTimestampEnricher())
             .MinimumLevel.Information();
 
@@ -34,18 +49,13 @@ public static class LoggingHelper {
                 Path.Combine(logDir, $"{appName}-.log"),
                 rollingInterval: RollingInterval.Day,
                 outputTemplate: OutputTemplate,
-                shared: true
+                shared: true,
+                fileSizeLimitBytes: null
             );
         }
 
-        if (config is not null) {
-            loggerConfig = loggerConfig.ReadFrom.Configuration(config);
-        }
+        loggerConfig = loggerConfig.ReadFrom.Configuration(Config);
 
         Log.Logger = loggerConfig.CreateLogger();
-    }
-
-    public static void Initialize(string? logDir, IHostEnvironment env, IConfiguration config) {
-        Initialize(logDir, env.IsDevelopment(), env.IsProduction(), config);
     }
 }

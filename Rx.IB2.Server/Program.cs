@@ -28,15 +28,12 @@ builder.Services.AddSingleton<IbApiRequestManager>();
 builder.Services.AddSingleton<IbApiHandler>();
 builder.Services.AddHostedService<IbApiReceiver>();
 builder.Services.AddSingleton<IbApiSender>();
+builder.Services.AddSingleton<LoggingHelper>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-LoggingHelper.Initialize(
-    null,
-    app.Services.GetRequiredService<IHostEnvironment>(),
-    app.Services.GetRequiredService<IConfiguration>()
-);
+app.Services.GetRequiredService<LoggingHelper>().Initialize();
 
 app.UseCors();
 app.MapHub<SignalRHub>("/signalr");
