@@ -14,7 +14,9 @@ public static class PxExtensions {
     };
 
     private static readonly ISet<PxTick> PxTicksToIncludeForOptions = new HashSet<PxTick> {
-        PxTick.Ask, PxTick.Bid, PxTick.Mark, PxTick.Delta, PxTick.Theta
+        // Need to allow sending `ModelOptionPx` for getting option greeks
+        // > this will send greeks based on the model price of the options
+        PxTick.Ask, PxTick.Bid, PxTick.Mark, PxTick.Delta, PxTick.Theta, PxTick.ModelOptionPx
     };
 
     private static readonly ISet<PxTick> PxTicksToIncludeForFutures = new HashSet<PxTick> {
