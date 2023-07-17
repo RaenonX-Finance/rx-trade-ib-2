@@ -29,7 +29,8 @@ public class IbApiSender {
 
     public IbApiSender(
         IConfiguration config,
-        IbApiHandler handler, IbApiRequestManager requestManager,
+        IbApiHandler handler,
+        IbApiRequestManager requestManager,
         IbApiHistoryPxRequestManager historyPxRequestManager,
         IbApiContractDetailsManager contractDetailsManager,
         IbApiOptionDefinitionsManager optionDefinitionsManager

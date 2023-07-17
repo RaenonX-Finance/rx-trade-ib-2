@@ -23,6 +23,13 @@ public static partial class ContractExtensions {
 
         return string.IsNullOrEmpty(multiplier) ? decimal.Zero : decimal.Parse(multiplier);
     }
+
+    private static string GetSymbol(this Contract contract, SecurityType securityType) {
+        return securityType switch {
+            SecurityType.OptionsCombo => $"{contract.LocalSymbol} (Combo)",
+            _ => contract.LocalSymbol
+        };
+    }
     
     private static ContractModel ToContractModel(Contract contract, ContractDetailsModel? details) {
         var securityType = contract.SecType.ToSecurityType();
@@ -30,7 +37,7 @@ public static partial class ContractExtensions {
         return new ContractModel {
             Id = contract.ConId,
             SecurityType = securityType,
-            LocalSymbol = contract.LocalSymbol,
+            LocalSymbol = contract.GetSymbol(securityType),
             Exchange = contract.Exchange,
             Multiplier = contract.Multiplier.ToDecimalMultiplier(securityType),
             Details = details

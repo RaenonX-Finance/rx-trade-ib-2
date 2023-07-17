@@ -25,7 +25,8 @@ public partial class IbApiHandler : EWrapper {
     public EClientSocket ClientSocket { get; }
 
     public IbApiHandler(
-        IHubContext<SignalRHub> hub, IbApiRequestManager requestManager,
+        IHubContext<SignalRHub> hub,
+        IbApiRequestManager requestManager,
         IbApiHistoryPxRequestManager historyPxRequestManager,
         IbApiContractDetailsManager contractDetailsManager,
         IbApiOptionDefinitionsManager optionDefinitionsManager
