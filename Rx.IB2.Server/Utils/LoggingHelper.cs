@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.File.Archive;
 
 namespace Rx.IB2.Utils;
 
@@ -47,10 +48,11 @@ public class LoggingHelper {
         if (logDir is not null) {
             loggerConfig = loggerConfig.WriteTo.File(
                 Path.Combine(logDir, $"{appName}-.log"),
-                rollingInterval: RollingInterval.Day,
+                rollingInterval: RollingInterval.Hour,
+                retainedFileCountLimit: 1,
                 outputTemplate: OutputTemplate,
-                shared: true,
-                fileSizeLimitBytes: null
+                fileSizeLimitBytes: null,
+                hooks: new ArchiveHooks()
             );
         }
 
