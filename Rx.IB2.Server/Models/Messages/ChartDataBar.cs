@@ -7,17 +7,17 @@ public record ChartDataBar {
     public required long EpochSec { get; init; }
     
     [UsedImplicitly]
-    public required double Open { get; init; }
+    public required double? Open { get; init; }
 
     [UsedImplicitly]
-    public required double High { get; init; }
+    public required double? High { get; init; }
 
     [UsedImplicitly]
-    public required double Low { get; init; }
+    public required double? Low { get; init; }
 
     [UsedImplicitly]
-    public required double Close { get; init; }
+    public required double? Close { get; init; }
 
     [UsedImplicitly]
-    public double Diff => Close - Open;
+    public double? Diff => Close - Open;
 };

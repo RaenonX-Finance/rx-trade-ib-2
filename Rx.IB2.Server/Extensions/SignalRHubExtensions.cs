@@ -329,10 +329,10 @@ public static class SignalRHubExtensions {
                 Meta = meta,
                 Bars = bars.Select(x => new ChartDataBar {
                     EpochSec = x.Timestamp.ToEpochSeconds(),
-                    Open = x.Open,
-                    High = x.High,
-                    Low = x.Low,
-                    Close = x.Close
+                    Open = x.Open == 0 ? null : x.Open,
+                    High = x.High == 0 ? null : x.High,
+                    Low = x.Low == 0 ? null : x.Low,
+                    Close = x.Close == 0 ? null : x.Close
                 })
             }
         );

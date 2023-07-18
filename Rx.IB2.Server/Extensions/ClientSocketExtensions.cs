@@ -9,7 +9,10 @@ public static class ClientSocketExtensions {
     private static readonly ILogger Log = Serilog.Log.ForContext(typeof(ClientSocketExtensions));
 
     public static void CheckMargin(
-        this EClientSocket clientSocket, IbApiRequestManager requestManager, Contract contract, OrderSide side
+        this EClientSocket clientSocket,
+        IbApiRequestManager requestManager,
+        Contract contract,
+        OrderSide side
     ) {
         var requestId = requestManager.GetNextRequestIdNoCancel();
         var order = new Order {
