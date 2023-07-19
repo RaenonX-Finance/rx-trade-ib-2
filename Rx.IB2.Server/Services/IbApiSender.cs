@@ -155,6 +155,8 @@ public class IbApiSender {
             Log.Information("#{RequestId}: Cancelling realtime data of [{ContractId}]", requestId, contractId);
             ClientSocket.cancelMktData(requestId);
         }
+
+        RequestManager.ClearByContractId(IbApiRequestType.Realtime, account, contractId);
     }
 
     private void RequestAccountPnL(string account) {
@@ -242,13 +244,14 @@ public class IbApiSender {
             DataType = request.DataType,
             IsSubscription = request.IsSubscription
         });
-        
+
         return requestId;
     }
 
     public void CancelHistory(int requestId) {
         Log.Information("#{RequestId}: Cancelling history px subscription", requestId);
         ClientSocket.cancelHistoricalData(requestId);
+        RequestManager.ClearByRequestId(requestId);
     }
 
     public IEnumerable<ContractDetails> RequestContractDetails(Contract contract) {
