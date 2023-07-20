@@ -34,7 +34,7 @@ public class BarSize {
 
     public static BarSize Day => new("1 day", "1d");
     
-    public static IList<BarSize> AvailableValues = new List<BarSize> {
+    public static readonly IList<BarSize> AvailableValues = new List<BarSize> {
         Sec1,
         Sec5,
         Sec15,
