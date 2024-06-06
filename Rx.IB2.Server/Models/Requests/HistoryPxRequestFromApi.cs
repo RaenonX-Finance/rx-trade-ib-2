@@ -38,6 +38,7 @@ public readonly struct HistoryPxRequestFromApi : IHistoryPxRequest {
                 SecurityType.Futures => Symbol.ToFuturesContract(),
                 SecurityType.Options => Symbol.ToOptionsContractFromOcc(),
                 SecurityType.ContinuousFutures => Symbol.ToContinuousFuturesContract(),
+                SecurityType.OptionsCombo => Symbol.ToOptionsComboContract(),
                 _ => throw new ArgumentOutOfRangeException(nameof(SecurityType),
                     $"Unhandled contract conversion for security type of {SecurityType}")
             };

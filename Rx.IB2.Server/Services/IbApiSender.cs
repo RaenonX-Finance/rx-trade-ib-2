@@ -12,36 +12,27 @@ using ILogger = Serilog.ILogger;
 
 namespace Rx.IB2.Services;
 
-public class IbApiSender {
+public class IbApiSender(
+    IConfiguration config,
+    IbApiHandler handler,
+    IbApiRequestManager requestManager,
+    IbApiHistoryPxRequestManager historyPxRequestManager,
+    IbApiContractDetailsManager contractDetailsManager,
+    IbApiOptionDefinitionsManager optionDefinitionsManager
+) {
     private static readonly ILogger Log = Serilog.Log.ForContext(typeof(IbApiSender));
 
-    private EClientSocket ClientSocket { get; }
+    private EClientSocket ClientSocket { get; } = handler.ClientSocket;
 
-    private IbApiRequestManager RequestManager { get; }
+    private IbApiRequestManager RequestManager { get; } = requestManager;
 
-    private IbApiHistoryPxRequestManager HistoryPxRequestManager { get; }
+    private IbApiHistoryPxRequestManager HistoryPxRequestManager { get; } = historyPxRequestManager;
 
-    private IbApiContractDetailsManager ContractDetailsManager { get; }
+    private IbApiContractDetailsManager ContractDetailsManager { get; } = contractDetailsManager;
 
-    private IbApiOptionDefinitionsManager OptionDefinitionsManager { get; }
+    private IbApiOptionDefinitionsManager OptionDefinitionsManager { get; } = optionDefinitionsManager;
 
-    private IConfiguration Config { get; }
-
-    public IbApiSender(
-        IConfiguration config,
-        IbApiHandler handler,
-        IbApiRequestManager requestManager,
-        IbApiHistoryPxRequestManager historyPxRequestManager,
-        IbApiContractDetailsManager contractDetailsManager,
-        IbApiOptionDefinitionsManager optionDefinitionsManager
-    ) {
-        Config = config;
-        ClientSocket = handler.ClientSocket;
-        RequestManager = requestManager;
-        HistoryPxRequestManager = historyPxRequestManager;
-        ContractDetailsManager = contractDetailsManager;
-        OptionDefinitionsManager = optionDefinitionsManager;
-    }
+    private IConfiguration Config { get; } = config;
 
     private void CancelRequests(string account) {
         Log.Information("Cancelling all requests of {Account}", account);
@@ -306,7 +297,7 @@ public class IbApiSender {
         }
     }
 
-    private IEnumerable<int> RequestRealtimeFromContract(
+    private List<int> RequestRealtimeFromContract(
         string account, Contract contract, Action<Contract> onObtainedContract
     ) {
         var requestIds = new List<int>();

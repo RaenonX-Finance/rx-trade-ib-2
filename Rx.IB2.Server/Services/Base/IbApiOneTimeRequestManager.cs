@@ -40,7 +40,7 @@ public abstract class IbApiOneTimeRequestManager<T> {
         Log.Information("#{RequestId}: Waiting {Name} lock", requestId, Name);
         if (!_semaphores.TryGetValue(requestId, out var semaphore)) {
             Log.Warning("#{RequestId}: no associated {Name} lock to wait", requestId, Name);
-            return Enumerable.Empty<T>();
+            return [];
         }
 
         semaphore.Wait();
@@ -51,7 +51,7 @@ public abstract class IbApiOneTimeRequestManager<T> {
         }
 
         Log.Warning("#{RequestId}: No {Name} found", requestId, Name);
-        return Enumerable.Empty<T>();
+        return [];
     }
 
     public IList<T> GetData(int requestId) {

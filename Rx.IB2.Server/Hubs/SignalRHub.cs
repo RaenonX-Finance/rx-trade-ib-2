@@ -7,28 +7,24 @@ using Rx.IB2.Services;
 
 namespace Rx.IB2.Hubs;
 
-public class SignalRHub : Hub {
-    private readonly ILogger<SignalRHub> _logger;
+public class SignalRHub(
+    ILogger<SignalRHub> logger,
+    IbApiSender sender,
+    IbApiRequestManager requestManager
+) : Hub {
+    private IbApiSender Sender { get; } = sender;
 
-    private IbApiSender Sender { get; }
-
-    private IbApiRequestManager RequestManager { get; }
-
-    public SignalRHub(ILogger<SignalRHub> logger, IbApiSender sender, IbApiRequestManager requestManager) {
-        _logger = logger;
-        Sender = sender;
-        RequestManager = requestManager;
-    }
+    private IbApiRequestManager RequestManager { get; } = requestManager;
 
     public override Task OnConnectedAsync() {
-        _logger.Log(LogLevel.Information, "Received signalR connection");
+        logger.Log(LogLevel.Information, "Received signalR connection");
         Sender.RequestOrders();
 
         return Task.CompletedTask;
     }
 
     public override Task OnDisconnectedAsync(Exception? exception) {
-        _logger.Log(LogLevel.Information, "Received signalR disconnection");
+        logger.Log(LogLevel.Information, "Received signalR disconnection");
 
         return Task.CompletedTask;
     }
@@ -40,7 +36,7 @@ public class SignalRHub : Hub {
     }
 
     public Task InitAccount(string account) {
-        _logger.Log(LogLevel.Information, "Received init account request for {Account}", account);
+        logger.Log(LogLevel.Information, "Received init account request for {Account}", account);
         Sender.SubscribeAccountUpdates(account);
         Sender.RequestCompletedOrders();
 
@@ -48,7 +44,7 @@ public class SignalRHub : Hub {
     }
 
     public Task InitOptionChain(InitOptionChainRequest request) {
-        _logger.Log(LogLevel.Information, "Received init option chain request of {Symbol}", request.Symbol);
+        logger.Log(LogLevel.Information, "Received init option chain request of {Symbol}", request.Symbol);
         Sender.InitOptionChain(request);
 
         return Task.CompletedTask;
@@ -58,7 +54,7 @@ public class SignalRHub : Hub {
         var contract = RequestManager.GetContractFromPool(pxDataRequest.ContractId);
 
         if (contract is null) {
-            _logger.Log(
+            logger.Log(
                 LogLevel.Warning,
                 "Received price tick request of [{ContractId}] in {Account}, but corresponding contract not found",
                 pxDataRequest.ContractId,
@@ -94,7 +90,7 @@ public class SignalRHub : Hub {
     }
 
     public Task RequestPnl(PnlRequest pnlRequest) {
-        _logger.Log(
+        logger.Log(
             LogLevel.Information,
             "Received PnL subscription request of {Account} on {ContractId}",
             pnlRequest.Account,
@@ -106,7 +102,7 @@ public class SignalRHub : Hub {
     }
 
     public Task DisconnectAccount(string account) {
-        _logger.Log(LogLevel.Information, "Received disconnection for account {Account}", account);
+        logger.Log(LogLevel.Information, "Received disconnection for account {Account}", account);
         Sender.UnsubscribeAccountUpdates(account);
 
         return Task.CompletedTask;

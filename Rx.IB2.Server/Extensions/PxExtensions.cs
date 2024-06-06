@@ -5,23 +5,20 @@ using Rx.IB2.Models;
 namespace Rx.IB2.Extensions;
 
 public static class PxExtensions {
-    private static readonly ISet<PxTick> PxTicksToIncludeForAll = new HashSet<PxTick> {
-        PxTick.Close
-    };
+    private static readonly HashSet<PxTick> PxTicksToIncludeForAll = [PxTick.Close];
 
-    private static readonly ISet<PxTick> PxTicksToIncludeForStocks = new HashSet<PxTick> {
-        PxTick.Ask, PxTick.Bid, PxTick.Last
-    };
+    private static readonly HashSet<PxTick> PxTicksToIncludeForStocks = [PxTick.Ask, PxTick.Bid, PxTick.Last];
 
-    private static readonly ISet<PxTick> PxTicksToIncludeForOptions = new HashSet<PxTick> {
-        // Need to allow sending `ModelOptionPx` for getting option greeks
-        // > this will send greeks based on the model price of the options
-        PxTick.Ask, PxTick.Bid, PxTick.Mark, PxTick.Delta, PxTick.Theta, PxTick.ModelOptionPx
-    };
+    private static readonly HashSet<PxTick> PxTicksToIncludeForOptions = [
+        PxTick.Ask,
+        PxTick.Bid,
+        PxTick.Mark,
+        PxTick.Delta,
+        PxTick.Theta,
+        PxTick.ModelOptionPx
+    ];
 
-    private static readonly ISet<PxTick> PxTicksToIncludeForFutures = new HashSet<PxTick> {
-        PxTick.Last
-    };
+    private static readonly HashSet<PxTick> PxTicksToIncludeForFutures = [PxTick.Last];
 
     public static bool IsPxTickIncluded(this PxTick pxTick, Contract contract) {
         if (PxTicksToIncludeForAll.Contains(pxTick)) {

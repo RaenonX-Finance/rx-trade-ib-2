@@ -32,11 +32,11 @@ public class IbApiOptionDefinitionsManager : IbApiOneTimeRequestManager<OptionDe
 
         return WaitAndGetData(requestId).Aggregate(
             new OptionDefinitionMessage {
-                TradingClass = new HashSet<string>(),
+                TradingClass = [],
                 UnderlyingContractId = 0,
-                Exchange = new HashSet<string>(),
-                Expiry = new HashSet<string>(),
-                Strike = new HashSet<double>()
+                Exchange = [],
+                Expiry = [],
+                Strike = []
             },
             (message, model) => new OptionDefinitionMessage {
                 TradingClass = message.TradingClass.AddAndReturn(model.TradingClass),

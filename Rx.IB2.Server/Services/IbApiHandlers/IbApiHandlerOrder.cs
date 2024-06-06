@@ -34,6 +34,8 @@ public partial class IbApiHandler {
 
         var orderStatus = status.ToOrderStatus();
 
+        // For the other order status update, just call `SendOrderUpdate()`
+        // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
         switch (orderStatus) {
             case OrderStatus.Filled:
                 Hub.SendOrderFilled(order);

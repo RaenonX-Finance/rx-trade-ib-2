@@ -20,4 +20,4 @@ public record ChartDataBar {
 
     [UsedImplicitly]
     public double? Diff => Close - Open;
-};
+}

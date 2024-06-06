@@ -6,15 +6,13 @@ namespace Rx.IB2.ApiControllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class HistoricalPxController : ControllerBase {
-    private IbApiSender Sender { get; }
+public class HistoricalPxController(
+    IbApiSender sender,
+    IbApiHistoryPxRequestManager historyPxRequestManager
+) : ControllerBase {
+    private IbApiSender Sender { get; } = sender;
 
-    private IbApiHistoryPxRequestManager HistoryPxRequestManager { get; }
-
-    public HistoricalPxController(IbApiSender sender, IbApiHistoryPxRequestManager historyPxRequestManager) {
-        Sender = sender;
-        HistoryPxRequestManager = historyPxRequestManager;
-    }
+    private IbApiHistoryPxRequestManager HistoryPxRequestManager { get; } = historyPxRequestManager;
 
     [HttpGet]
     public ActionResult<IEnumerable<PxDataBarModel>> GetHistoricalData() {

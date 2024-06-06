@@ -72,7 +72,7 @@ public static partial class ContractExtensions {
         return ContractMaker.MakeUsStockOptions(symbol, date, right, strike);
     }
 
-    [GeneratedRegex("(?<Symbol>[A-Z]+)(?<Expiry>\\d+)(?<CallPut>C|P)(?<Strike>[\\d.]+)")]
+    [GeneratedRegex(@"(?<Symbol>[A-Z]+)(?<Expiry>\d+)(?<CallPut>C|P)(?<Strike>[\d.]+)")]
     private static partial Regex FidelityOptionRegex();
 
     private static Contract ToOptionsContractFromFidelity(this string fidelityStyleSymbol) {
@@ -117,6 +117,10 @@ public static partial class ContractExtensions {
 
     public static Contract ToContinuousFuturesContract(this string symbol) {
         return ContractMaker.MakeUsContinuousFutures(symbol);
+    }
+
+    public static Contract ToOptionsComboContract(this string _) {
+        throw new NotImplementedException();
     }
 
     public static Contract ToUsStockContract(this string symbol) {

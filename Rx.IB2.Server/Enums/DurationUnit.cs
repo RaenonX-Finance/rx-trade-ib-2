@@ -1,5 +1,6 @@
 ﻿namespace Rx.IB2.Enums; 
 
+// ReSharper disable UnusedMember.Global
 public enum DurationUnit {
     S,
     D,
@@ -7,3 +8,4 @@ public enum DurationUnit {
     M,
     Y
 }
+// ReSharper restore UnusedMember.Global

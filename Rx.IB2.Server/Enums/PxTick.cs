@@ -1,6 +1,10 @@
 ﻿namespace Rx.IB2.Enums;
 
-// https://interactivebrokers.github.io/tws-api/tick_types.html
+/// <summary>
+/// Check `TickType.getField()` for the field description.
+/// Related online doc: https://ibkrcampus.com/ibkr-api-page/twsapi-doc/#find-the-api.
+/// </summary>
+// ReSharper disable UnusedMember.Global
 public enum PxTick {
     BidSize = 0,
     Bid = 1,
@@ -32,3 +36,4 @@ public enum PxTick {
     PvDividend = 10006, // Present value of dividends expected on the underlying
     ImpliedVolatility = 10007
 }
+// ReSharper restore UnusedMember.Global

@@ -3,22 +3,15 @@
 namespace Rx.IB2.Utils;
 
 public static class AppNameManager {
-    public static string GetAppName(bool isDev, bool isProd) {
+    public static string GetAppName(IHostEnvironment host) {
         var appName = Assembly.GetEntryAssembly()?.FullName?.Split(',')[0] ?? "(Unmanaged)";
 
-        if (isDev) {
+        if (host.IsDevelopment()) {
             appName += ".Development";
-        }
-        else if (isProd) {
+        } else if (host.IsProduction()) {
             appName += ".Production";
         }
 
         return appName;
-    }
-
-    public static string GetAppName(WebApplication app) {
-        var environment = app.Environment;
-
-        return GetAppName(environment.IsDevelopment(), environment.IsProduction());
     }
 }

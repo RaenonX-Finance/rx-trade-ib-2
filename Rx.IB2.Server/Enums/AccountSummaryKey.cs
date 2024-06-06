@@ -1,5 +1,6 @@
 ﻿namespace Rx.IB2.Enums; 
 
+// ReSharper disable UnusedMember.Global
 public enum AccountSummaryKey {
     NetLiquidation,
     NetLiquidationC,
@@ -13,3 +14,4 @@ public enum AccountSummaryKey {
     AvailableFundsC,
     AvailableFundsS
 }
+// ReSharper restore UnusedMember.Global

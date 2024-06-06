@@ -1,11 +1,4 @@
-﻿using IBApi;
-using Microsoft.AspNetCore.SignalR;
-using Rx.IB2.Enums;
-using Rx.IB2.Extensions;
-using Rx.IB2.Hubs;
-using ILogger = Serilog.ILogger;
-
-namespace Rx.IB2.Services.IbApiHandlers;
+﻿namespace Rx.IB2.Services.IbApiHandlers;
 
 public partial class IbApiHandler {
     public void error(Exception e) {
@@ -22,7 +15,8 @@ public partial class IbApiHandler {
         HistoryPxRequestManager.ReleaseLock(requestId);
         ContractDetailsManager.ReleaseLock(requestId);
 
-        if (requestId == -1) { // Not a true error - notification only
+        if (requestId == -1) {
+            // Not a true error - notification only
             Log.Information("IB API notification [{Code}]: {Message}", errorCode, errorMsg);
             return;
         }
