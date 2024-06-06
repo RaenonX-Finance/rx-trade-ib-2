@@ -64,6 +64,13 @@ public partial class IbApiHandler {
         RequestManager.AddOrderToPoolByPermId(order.PermId, order);
         RequestManager.AddContractToPool(contract);
 
+        if (contract.ComboLegs is not null) {
+            // FIXME: Handle option combo position/order
+            foreach (var comboLeg in contract.ComboLegs) {
+                ClientSocket.RequestContractDetails(RequestManager, new Contract{ConId = comboLeg.ConId});
+            }
+        }
+
         Hub.SendCompletedOrderRecord(order.PermId, contract, order);
     }
 
