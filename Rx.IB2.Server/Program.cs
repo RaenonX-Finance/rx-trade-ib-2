@@ -13,7 +13,7 @@ builder.Services.AddCors(options => {
         policy
             .AllowCredentials()
             .AllowAnyHeader()
-            .WithOrigins("http://localhost:3000");
+            .WithOrigins("http://localhost:3100");
     });
 });
 builder.Services
