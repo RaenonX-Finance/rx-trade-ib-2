@@ -255,14 +255,8 @@ public class IbApiSender {
     }
 
     public IEnumerable<ContractDetails> RequestContractDetails(Contract contract) {
-        var requestId = RequestManager.GetNextRequestIdNoCancel();
-        Log.Information(
-            "#{RequestId}: Requesting contract details of {Symbol}",
-            requestId,
-            contract.Symbol
-        );
+        var requestId = ClientSocket.RequestContractDetails(RequestManager, contract);
 
-        ClientSocket.reqContractDetails(requestId, contract);
         ContractDetailsManager.EnterLock(requestId);
         return ContractDetailsManager.WaitAndGetData(requestId);
     }

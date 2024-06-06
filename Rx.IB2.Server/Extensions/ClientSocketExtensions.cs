@@ -31,4 +31,23 @@ public static class ClientSocketExtensions {
         contract.AddExchangeOnContract();
         clientSocket.placeOrder(requestId, contract, order);
     }
+
+    public static int RequestContractDetails(
+        this EClientSocket clientSocket,
+        IbApiRequestManager requestManager,
+        Contract contract
+    ) {
+        var requestId = requestManager.GetNextRequestIdNoCancel();
+        
+        Log.Information(
+            "#{RequestId}: Requesting contract details of {Symbol} [{ContractId}]",
+            requestId,
+            contract.Symbol,
+            contract.ConId
+        );
+
+        clientSocket.reqContractDetails(requestId, contract);
+        
+        return requestId;
+    }
 }
