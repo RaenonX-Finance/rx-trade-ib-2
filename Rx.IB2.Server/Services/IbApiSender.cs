@@ -1,4 +1,5 @@
-﻿using IBApi;
+﻿using System.Collections.Concurrent;
+using IBApi;
 using Rx.IB2.Enums;
 using Rx.IB2.Extensions;
 using Rx.IB2.Interfaces;
@@ -368,7 +369,7 @@ public class IbApiSender(
         );
 
         var realtimeRequestLiveFetchIds = new List<Task<List<int>>>();
-        var contracts = new Dictionary<OptionsContractDictKey, Contract>();
+        var contracts = new ConcurrentDictionary<OptionsContractDictKey, Contract>();
 
         foreach (var strike in request.Strikes) {
             foreach (var expiry in request.Expiry) {
@@ -384,13 +385,14 @@ public class IbApiSender(
                     return RequestRealtimeFromContract(
                         request.Account,
                         callContract,
-                        contract => contracts.Add(
+                        contract => contracts.AddOrUpdate(
                             new OptionsContractDictKey {
                                 Strike = strike,
                                 Expiry = expiry,
                                 Right = OptionRight.Call
                             },
-                            contract
+                            contract,
+                            (_, _) => contract
                         )
                     );
                 }));
@@ -406,13 +408,14 @@ public class IbApiSender(
                     return RequestRealtimeFromContract(
                         request.Account,
                         putContract,
-                        contract => contracts.Add(
+                        contract => contracts.AddOrUpdate(
                             new OptionsContractDictKey {
                                 Strike = strike,
                                 Expiry = expiry,
                                 Right = OptionRight.Put
                             },
-                            contract
+                            contract,
+                            (_, _) => contract
                         )
                     );
                 }));
