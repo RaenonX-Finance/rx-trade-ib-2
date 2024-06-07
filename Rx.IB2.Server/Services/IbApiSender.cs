@@ -103,30 +103,50 @@ public class IbApiSender(
         CancelRequests(account);
     }
 
-    public int? RequestRealtime(string account, Contract contract) {
+    private int? RequestRealtimeFrozen(string account, ContractDetails contractDetails) {
+        var securityType = contractDetails.Contract.SecType.ToSecurityType();
+        if (
+            securityType != SecurityType.Options ||
+            contractDetails.ToTradingDateIntervals().Any(x => x.IsCurrent())
+        ) {
+            return null;
+        }
+
+        return RequestRealtime(account, contractDetails.Contract, MarketDataType.Frozen);
+    }
+
+    private int? RequestRealtime(string account, ContractDetails contractDetails) {
+        return RequestRealtime(account, contractDetails.Contract, MarketDataType.Live);
+    }
+
+    public int? RequestRealtime(string account, Contract contract, MarketDataType marketDataType) {
         var isSubscribing = RequestManager.IsContractSubscribingRealtime(account, contract);
-        if (isSubscribing) {
+        if (isSubscribing && marketDataType != MarketDataType.Frozen) {
             Log.Information("Contract [{ContractId}] is already subscribed to market data", contract.ConId);
             return null;
         }
 
+        var securityType = contract.SecType.ToSecurityType();
         var requestId = RequestManager.GetNextRequestId(IbApiRequestType.Realtime, account, contract.ConId);
         var tickToRequest = new List<MarketPxRequestTick> { MarketPxRequestTick.Mark };
 
-        if (contract.SecType.ToSecurityType() == SecurityType.Options) {
+        if (securityType == SecurityType.Options) {
             tickToRequest.Add(MarketPxRequestTick.OptionOpenInterest);
             tickToRequest.Add(MarketPxRequestTick.OptionVolume);
         }
 
         Log.Information(
-            "#{RequestId}: Subscribing realtime data of {ContractString}",
+            "#{RequestId}: Subscribing realtime data of {CustomCont" +
+            "ractSymbol} ({MarketDataType})",
             requestId,
-            contract.ToString()
+            contract.ToCustomContractSymbol(),
+            marketDataType
         );
 
         // Make sure `contract` has exchange set
         contract.AddExchangeOnContract();
 
+        ClientSocket.reqMarketDataType((int)marketDataType);
         ClientSocket.reqMktData(
             requestId,
             contract,
@@ -284,7 +304,7 @@ public class IbApiSender(
             var contractModel = contract.ToContractModel();
 
             // Request price quote at the same time to let UI decide what strikes to use
-            RequestRealtime(request.Account, contract);
+            RequestRealtime(request.Account, contractDetail);
 
             OptionDefinitionsManager.EnterLock(requestId);
 
@@ -314,16 +334,26 @@ public class IbApiSender(
             var contractFromDetail = contractDetail.Contract;
 
             onObtainedContract(contractFromDetail);
-            var realtimeRequestId = RequestRealtime(account, contractDetail.Contract);
-
-            if (realtimeRequestId is null) {
+            var requestId = RequestRealtime(account, contractDetail);
+            if (requestId is null) {
                 continue;
             }
 
-            requestIds.Add(realtimeRequestId.Value);
+            requestIds.Add(requestId.Value);
         }
 
         return requestIds;
+    }
+
+    private List<int> RequestFrozenRealtimeFromContract(
+        string account,
+        Contract contract
+    ) {
+        return RequestContractDetails(contract)
+            .Select(contractDetail => RequestRealtimeFrozen(account, contractDetail))
+            .Where(requestId => requestId is not null)
+            .OfType<int>()
+            .ToList();
     }
 
     public async Task<OptionPxResponse> RequestOptionChainPrice(OptionPxSubscribeRequest request) {
@@ -334,12 +364,12 @@ public class IbApiSender(
             request.Strikes
         );
 
-        var realtimeRequestIds = new List<Task<List<int>>>();
+        var realtimeRequestLiveFetchIds = new List<Task<List<int>>>();
         var callContracts = new Dictionary<double, Contract>();
         var putContracts = new Dictionary<double, Contract>();
 
         foreach (var strike in request.Strikes) {
-            realtimeRequestIds.Add(Task.Run(() => {
+            realtimeRequestLiveFetchIds.Add(Task.Run(() => {
                 var callContract = ContractMaker.MakeOptions(
                     request.Symbol,
                     request.Expiry,
@@ -354,7 +384,7 @@ public class IbApiSender(
                     contract => callContracts.Add(strike, contract)
                 );
             }));
-            realtimeRequestIds.Add(Task.Run(() => {
+            realtimeRequestLiveFetchIds.Add(Task.Run(() => {
                 var putContract = ContractMaker.MakeOptions(
                     request.Symbol,
                     request.Expiry,
@@ -371,8 +401,13 @@ public class IbApiSender(
             }));
         }
 
+        var realTimeRequestLiveIds = await Task.WhenAll(realtimeRequestLiveFetchIds);
+        var realTimeRequestFrozenIds = await Task.WhenAll(callContracts.Values
+            .Concat(putContracts.Values)
+            .Select(contract => Task.Run(() => RequestFrozenRealtimeFromContract(request.Account, contract))));
+
         return new OptionPxResponse {
-            RealtimeRequestIds = (await Task.WhenAll(realtimeRequestIds)).SelectMany(x => x).ToList(),
+            RealtimeRequestIds = realTimeRequestLiveIds.Concat(realTimeRequestFrozenIds).SelectMany(x => x).ToList(),
             ContractIdPairs = callContracts.Keys
                 .Concat(putContracts.Keys)
                 .Distinct()

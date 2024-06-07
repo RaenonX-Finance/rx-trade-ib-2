@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Rx.IB2.Enums;
 using Rx.IB2.Extensions;
 using Rx.IB2.Models;
 using Rx.IB2.Models.Requests;
@@ -63,7 +64,7 @@ public class SignalRHub(
             return Task.CompletedTask;
         }
 
-        Sender.RequestRealtime(pxDataRequest.Account, contract);
+        Sender.RequestRealtime(pxDataRequest.Account, contract, MarketDataType.Live);
         return Task.CompletedTask;
     }
 

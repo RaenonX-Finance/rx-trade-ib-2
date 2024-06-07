@@ -2,7 +2,7 @@
 using Rx.IB2.Enums;
 using Rx.IB2.Extensions;
 
-namespace Rx.IB2.Services.IbApiHandlers; 
+namespace Rx.IB2.Services.IbApiHandlers;
 
 public partial class IbApiHandler {
     public void tickPrice(int requestId, int pxTickInt, double price, TickAttrib attribs) {
@@ -40,7 +40,7 @@ public partial class IbApiHandler {
         if (contract is null || !tick.IsPxTickIncluded(contract)) {
             return;
         }
-        
+
         Hub.SendPxUpdate(
             requestId,
             contract.ConId,
@@ -90,8 +90,17 @@ public partial class IbApiHandler {
     }
 
     public void tickOptionComputation(
-        int requestId, int pxTickInt, int tickAttrib, double impliedVolatility, double delta,
-        double optPrice, double pvDividend, double gamma, double vega, double theta, double underlyingPx
+        int requestId,
+        int pxTickInt,
+        int tickAttrib,
+        double impliedVolatility,
+        double delta,
+        double optPrice,
+        double pvDividend,
+        double gamma,
+        double vega,
+        double theta,
+        double underlyingPx
     ) {
         var contract = RequestManager.GetContractByRequestId(requestId);
 
