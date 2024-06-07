@@ -412,6 +412,7 @@ public class IbApiSender(
                 .Concat(putContracts.Keys)
                 .Distinct()
                 .Select(x => new OptionContractIdPair {
+                    Expiry = request.Expiry,
                     Strike = x,
                     Call = callContracts[x].ConId,
                     Put = putContracts[x].ConId

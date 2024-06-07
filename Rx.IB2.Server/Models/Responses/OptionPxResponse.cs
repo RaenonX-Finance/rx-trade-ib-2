@@ -4,6 +4,9 @@ namespace Rx.IB2.Models.Responses;
 
 public struct OptionContractIdPair {
     [UsedImplicitly]
+    public required string Expiry { get; init; }
+    
+    [UsedImplicitly]
     public required double Strike { get; init; }
 
     [UsedImplicitly]
