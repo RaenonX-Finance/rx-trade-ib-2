@@ -16,4 +16,8 @@ public static class NumberExtensions {
     public static decimal MaxValueAsZero(this decimal value) {
         return Math.Abs(value - decimal.MaxValue) < (decimal)MaxFloatErrorAllowance ? 0 : value;
     }
+
+    public static decimal? MaxValueAsNull(this decimal value) {
+        return Math.Abs(value - decimal.MaxValue) < (decimal)MaxFloatErrorAllowance ? null : value;
+    }
 }
