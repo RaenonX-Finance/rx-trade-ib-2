@@ -38,12 +38,11 @@ public static class ClientSocketExtensions {
         Contract contract
     ) {
         var requestId = requestManager.GetNextRequestIdNoCancel();
-        
+
         Log.Information(
-            "#{RequestId}: Requesting contract details of {Symbol} [{ContractId}]",
+            "#{RequestId}: Requesting contract details of {ContractCustomSymbol}",
             requestId,
-            contract.Symbol,
-            contract.ConId
+            contract.ToCustomContractSymbol()
         );
 
         clientSocket.reqContractDetails(requestId, contract);

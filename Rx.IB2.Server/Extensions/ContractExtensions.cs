@@ -15,7 +15,7 @@ public static partial class ContractExtensions {
 
         return contract;
     }
-    
+
     private static decimal ToDecimalMultiplier(this string multiplier, SecurityType securityType) {
         if (securityType == SecurityType.Stocks) {
             return 1;
@@ -30,10 +30,10 @@ public static partial class ContractExtensions {
             _ => contract.LocalSymbol
         };
     }
-    
+
     private static ContractModel ToContractModel(Contract contract, ContractDetailsModel? details) {
         var securityType = contract.SecType.ToSecurityType();
-        
+
         return new ContractModel {
             Id = contract.ConId,
             SecurityType = securityType,
@@ -86,16 +86,29 @@ public static partial class ContractExtensions {
         return ContractMaker.MakeUsStockOptions(symbol, date, right, strike);
     }
 
+    public static string ToCustomContractSymbol(this Contract contract) {
+        var securityType = contract.SecType.ToSecurityType();
+
+        return securityType switch {
+            SecurityType.Stocks or SecurityType.Futures or SecurityType.ContinuousFutures =>
+                $"{contract.Symbol} @ {contract.Exchange} [{contract.ConId}]",
+            SecurityType.Options =>
+                $"{contract.Symbol} {contract.LastTradeDateOrContractMonth} {contract.Right} {contract.Strike} [{contract.ConId}]",
+            SecurityType.OptionsCombo =>
+                $"{contract.Symbol} @ {contract.Exchange} [{contract.ConId}]",
+            _ => throw new ArgumentOutOfRangeException(nameof(contract),
+                $"Invalid security type for custom contract symbol conversion: {securityType}")
+        };
+    }
+
     public static Contract ToContract(this string symbol, ToContractOptions? options = null) {
         Contract contract;
-        
+
         if (symbol.StartsWith(SymbolPrefixes.Futures)) {
             // Futures
             symbol = symbol[1..];
 
-            contract = char.IsNumber(symbol[^1]) ? 
-                symbol.ToFuturesContract() : 
-                symbol.ToContinuousFuturesContract();
+            contract = char.IsNumber(symbol[^1]) ? symbol.ToFuturesContract() : symbol.ToContinuousFuturesContract();
         } else if (symbol.StartsWith(SymbolPrefixes.Options)) {
             // Options
             symbol = symbol[1..];
@@ -110,7 +123,7 @@ public static partial class ContractExtensions {
 
         return contract.ApplyOptionValues(options);
     }
-    
+
     public static Contract ToFuturesContract(this string symbol) {
         return ContractMaker.MakeUsFutures(symbol);
     }
