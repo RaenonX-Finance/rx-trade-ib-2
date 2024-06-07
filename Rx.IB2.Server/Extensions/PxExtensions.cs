@@ -5,13 +5,11 @@ using Rx.IB2.Models;
 namespace Rx.IB2.Extensions;
 
 public static class PxExtensions {
-    private static readonly HashSet<PxTick> PxTicksToIncludeForAll = [PxTick.Close];
+    private static readonly HashSet<PxTick> PxTicksToIncludeForAll = [PxTick.Ask, PxTick.Bid, PxTick.Close];
 
-    private static readonly HashSet<PxTick> PxTicksToIncludeForStocks = [PxTick.Ask, PxTick.Bid, PxTick.Last];
+    private static readonly HashSet<PxTick> PxTicksToIncludeForStocks = [PxTick.Last];
 
     private static readonly HashSet<PxTick> PxTicksToIncludeForOptions = [
-        PxTick.Ask,
-        PxTick.Bid,
         PxTick.Mark,
         PxTick.Delta,
         PxTick.Theta,
