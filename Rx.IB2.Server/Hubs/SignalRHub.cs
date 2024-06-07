@@ -44,9 +44,14 @@ public class SignalRHub(
         return Task.CompletedTask;
     }
 
-    public Task InitOptionChain(InitOptionChainRequest request) {
-        logger.Log(LogLevel.Information, "Received init option chain request of {Symbol}", request.Symbol);
-        Sender.InitOptionChain(request);
+    public Task RequestPnl(PnlRequest pnlRequest) {
+        logger.Log(
+            LogLevel.Information,
+            "Received PnL subscription request of {Account} on {ContractId}",
+            pnlRequest.Account,
+            pnlRequest.ContractId
+        );
+        Sender.RequestSinglePositionPnL(pnlRequest.Account, pnlRequest.ContractId);
 
         return Task.CompletedTask;
     }
@@ -68,37 +73,32 @@ public class SignalRHub(
         return Task.CompletedTask;
     }
 
-    public Task CancelPxTick(CancelPxRequest request) {
-        Sender.CancelRealtime(request.Account, request.ContractId);
-        return Task.CompletedTask;
-    }
-
     public Task<int?> RequestPxHistory(HistoryPxRequestForQuote request) {
         return Task.FromResult(Sender.RequestPxHistoryForQuote(request));
     }
 
-    public Task CancelHistory(CancelApiRequest request) {
-        Sender.CancelHistory(request.RequestId);
-        return Task.CompletedTask;
-    }
-
-    public Task<OptionPxResponse> RequestPxOfOptionChain(OptionPxSubscribeRequest request) {
-        return Sender.RequestOptionChainPrice(request);
+    public Task<OptionPxResponse> RequestPxOfOptions(OptionPxSubscribeRequest request) {
+        return Sender.RequestOptionsPx(request);
     }
 
     public Task<IEnumerable<ContractModel>> RequestContractDetails(string symbol) {
         return Task.FromResult(Sender.RequestContractDetails(symbol.ToContract()).Select(x => x.ToContractModel()));
     }
 
-    public Task RequestPnl(PnlRequest pnlRequest) {
-        logger.Log(
-            LogLevel.Information,
-            "Received PnL subscription request of {Account} on {ContractId}",
-            pnlRequest.Account,
-            pnlRequest.ContractId
-        );
-        Sender.RequestSinglePositionPnL(pnlRequest.Account, pnlRequest.ContractId);
+    public Task RequestOptionDefinitions(OptionDefinitionRequest request) {
+        logger.Log(LogLevel.Information, "Received option definition request of {Symbol}", request.Symbol);
+        Sender.RequestOptionDefinitions(request);
 
+        return Task.CompletedTask;
+    }
+
+    public Task CancelPxTick(CancelPxRequest request) {
+        Sender.CancelRealtime(request.Account, request.ContractId);
+        return Task.CompletedTask;
+    }
+
+    public Task CancelHistory(CancelApiRequest request) {
+        Sender.CancelHistory(request.RequestId);
         return Task.CompletedTask;
     }
 

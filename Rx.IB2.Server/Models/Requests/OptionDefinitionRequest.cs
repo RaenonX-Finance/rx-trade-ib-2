@@ -2,7 +2,7 @@
 
 namespace Rx.IB2.Models.Requests;
 
-public struct InitOptionChainRequest {
+public struct OptionDefinitionRequest {
     [UsedImplicitly]
     public required string Account { get; init; }
 

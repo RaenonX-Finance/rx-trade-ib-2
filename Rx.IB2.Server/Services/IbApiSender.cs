@@ -6,6 +6,7 @@ using Rx.IB2.Models;
 using Rx.IB2.Models.Options;
 using Rx.IB2.Models.Requests;
 using Rx.IB2.Models.Responses;
+using Rx.IB2.Models.Utils;
 using Rx.IB2.Services.IbApiHandlers;
 using Rx.IB2.Utils;
 using ILogger = Serilog.ILogger;
@@ -277,8 +278,8 @@ public class IbApiSender(
         return ContractDetailsManager.WaitAndGetData(requestId);
     }
 
-    public void InitOptionChain(InitOptionChainRequest request) {
-        Log.Information("Requesting option chain of {Symbol}", request.Symbol);
+    public void RequestOptionDefinitions(OptionDefinitionRequest request) {
+        Log.Information("Requesting option definitions of {Symbol}", request.Symbol);
 
         if (request.InUsePxRequestIds.Count > 0) {
             Log.Information(
@@ -300,6 +301,8 @@ public class IbApiSender(
         };
         foreach (var contractDetail in RequestContractDetails(request.Symbol.ToContract(options))) {
             var requestId = RequestManager.GetNextRequestIdNoCancel();
+            OptionDefinitionsManager.RecordRequestOrigin(requestId, request.Origin);
+
             var contract = contractDetail.Contract;
             var contractModel = contract.ToContractModel();
 
@@ -356,66 +359,81 @@ public class IbApiSender(
             .ToList();
     }
 
-    public async Task<OptionPxResponse> RequestOptionChainPrice(OptionPxSubscribeRequest request) {
+    public async Task<OptionPxResponse> RequestOptionsPx(OptionPxSubscribeRequest request) {
         Log.Information(
-            "Received option Px subscription request of {Symbol} expiring {Expiry} at {@Strikes}",
+            "Received option Px subscription request of {Symbol} expiring {@Expiry} at {@Strikes}",
             request.Symbol,
             request.Expiry,
             request.Strikes
         );
 
         var realtimeRequestLiveFetchIds = new List<Task<List<int>>>();
-        var callContracts = new Dictionary<double, Contract>();
-        var putContracts = new Dictionary<double, Contract>();
+        var contracts = new Dictionary<OptionsContractDictKey, Contract>();
 
         foreach (var strike in request.Strikes) {
-            realtimeRequestLiveFetchIds.Add(Task.Run(() => {
-                var callContract = ContractMaker.MakeOptions(
-                    request.Symbol,
-                    request.Expiry,
-                    OptionRight.Call,
-                    strike,
-                    request.TradingClass
-                );
+            foreach (var expiry in request.Expiry) {
+                realtimeRequestLiveFetchIds.Add(Task.Run(() => {
+                    var callContract = ContractMaker.MakeOptions(
+                        request.Symbol,
+                        expiry,
+                        OptionRight.Call,
+                        strike,
+                        request.TradingClass
+                    );
 
-                return RequestRealtimeFromContract(
-                    request.Account,
-                    callContract,
-                    contract => callContracts.Add(strike, contract)
-                );
-            }));
-            realtimeRequestLiveFetchIds.Add(Task.Run(() => {
-                var putContract = ContractMaker.MakeOptions(
-                    request.Symbol,
-                    request.Expiry,
-                    OptionRight.Put,
-                    strike,
-                    request.TradingClass
-                );
+                    return RequestRealtimeFromContract(
+                        request.Account,
+                        callContract,
+                        contract => contracts.Add(
+                            new OptionsContractDictKey {
+                                Strike = strike,
+                                Expiry = expiry,
+                                Right = OptionRight.Call
+                            },
+                            contract
+                        )
+                    );
+                }));
+                realtimeRequestLiveFetchIds.Add(Task.Run(() => {
+                    var putContract = ContractMaker.MakeOptions(
+                        request.Symbol,
+                        expiry,
+                        OptionRight.Put,
+                        strike,
+                        request.TradingClass
+                    );
 
-                return RequestRealtimeFromContract(
-                    request.Account,
-                    putContract,
-                    contract => putContracts.Add(strike, contract)
-                );
-            }));
+                    return RequestRealtimeFromContract(
+                        request.Account,
+                        putContract,
+                        contract => contracts.Add(
+                            new OptionsContractDictKey {
+                                Strike = strike,
+                                Expiry = expiry,
+                                Right = OptionRight.Put
+                            },
+                            contract
+                        )
+                    );
+                }));
+            }
         }
 
         var realTimeRequestLiveIds = await Task.WhenAll(realtimeRequestLiveFetchIds);
-        var realTimeRequestFrozenIds = await Task.WhenAll(callContracts.Values
-            .Concat(putContracts.Values)
-            .Select(contract => Task.Run(() => RequestFrozenRealtimeFromContract(request.Account, contract))));
+        var realTimeRequestFrozenIds = await Task.WhenAll(
+            contracts.Values
+                .Select(contract => Task.Run(() => RequestFrozenRealtimeFromContract(request.Account, contract)))
+        );
 
         return new OptionPxResponse {
             RealtimeRequestIds = realTimeRequestLiveIds.Concat(realTimeRequestFrozenIds).SelectMany(x => x).ToList(),
-            ContractIdPairs = callContracts.Keys
-                .Concat(putContracts.Keys)
-                .Distinct()
+            ContractIdPairs = contracts
+                .GroupBy(x => (x.Key.Expiry, x.Key.Strike))
                 .Select(x => new OptionContractIdPair {
-                    Expiry = request.Expiry,
-                    Strike = x,
-                    Call = callContracts[x].ConId,
-                    Put = putContracts[x].ConId
+                    Expiry = x.Key.Expiry,
+                    Strike = x.Key.Strike,
+                    Call = x.First(item => item.Key.Right == OptionRight.Call).Value.ConId,
+                    Put = x.First(item => item.Key.Right == OptionRight.Put).Value.ConId
                 })
                 .ToList()
         };
