@@ -5,9 +5,14 @@ using Rx.IB2.Models;
 namespace Rx.IB2.Extensions;
 
 public static class PxExtensions {
-    private static readonly HashSet<PxTick> PxTicksToIncludeForAll = [PxTick.Ask, PxTick.Bid, PxTick.Close];
+    private static readonly HashSet<PxTick> PxTicksToIncludeForAll = [
+        PxTick.Last,
+        PxTick.Ask,
+        PxTick.Bid,
+        PxTick.Close
+    ];
 
-    private static readonly HashSet<PxTick> PxTicksToIncludeForStocks = [PxTick.Last];
+    private static readonly HashSet<PxTick> PxTicksToIncludeForStocks = [];
 
     private static readonly HashSet<PxTick> PxTicksToIncludeForOptions = [
         PxTick.Mark,
@@ -19,7 +24,7 @@ public static class PxExtensions {
         PxTick.OptionPutOpenInterest,
     ];
 
-    private static readonly HashSet<PxTick> PxTicksToIncludeForFutures = [PxTick.Last];
+    private static readonly HashSet<PxTick> PxTicksToIncludeForFutures = [];
 
     public static bool IsPxTickIncluded(this PxTick pxTick, Contract contract) {
         if (PxTicksToIncludeForAll.Contains(pxTick)) {
