@@ -2,7 +2,10 @@
 
 /// <summary>
 /// Check `TickType.getField()` for the field description.
-/// Related online doc: https://ibkrcampus.com/ibkr-api-page/twsapi-doc/#find-the-api.
+/// Related online doc:
+/// - https://interactivebrokers.github.io/tws-api/tick_types.html
+/// 
+/// Note, some tick may require generic tick to get the tick. Corresponding enum is <see cref="MarketPxRequestTick"/>.
 /// </summary>
 // ReSharper disable UnusedMember.Global
 public enum PxTick {
@@ -21,6 +24,10 @@ public enum PxTick {
     LastOfOptions = 12,
     ModelOptionPx = 13,
     OpenTick = 14, // Current session opening price, previous day open before open
+    OptionCallOpenInterest = 27,
+    OptionPutOpenInterest = 28,
+    OptionCallVolume = 29,
+    OptionPutVolume = 30,
     BidExchange = 32,
     AskExchange = 33,
     Mark = 37,

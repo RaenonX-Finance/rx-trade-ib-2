@@ -111,7 +111,12 @@ public class IbApiSender(
         }
 
         var requestId = RequestManager.GetNextRequestId(IbApiRequestType.Realtime, account, contract.ConId);
-        var tickToRequest = new[] { MarketPxRequestTick.Mark };
+        var tickToRequest = new List<MarketPxRequestTick> { MarketPxRequestTick.Mark };
+
+        if (contract.SecType.ToSecurityType() == SecurityType.Options) {
+            tickToRequest.Add(MarketPxRequestTick.OptionOpenInterest);
+            tickToRequest.Add(MarketPxRequestTick.OptionVolume);
+        }
 
         Log.Information(
             "#{RequestId}: Subscribing realtime data of {ContractString}",

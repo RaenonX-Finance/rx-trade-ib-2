@@ -259,21 +259,21 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendPxUpdate(
-        this IHubContext<SignalRHub> hub, int requestId, int contractId, PxTick tick, double price
+        this IHubContext<SignalRHub> hub, int requestId, int contractId, PxTick tick, double value
     ) {
         Log.Information(
-            "#{RequestId}: SignalR sends single price update of [{ContractId}]: {Tick} as {Price:0.00}",
+            "#{RequestId}: SignalR sends single price update of [{ContractId}]: {Tick} as {Value:0.00}",
             requestId,
             contractId,
             tick,
-            price
+            value
         );
         hub.Clients.All.SendAsync(
             SignalREvents.PxUpdate.ToString(),
             new PxUpdateMessage {
                 ContractId = contractId,
                 Update = new Dictionary<PxTick, double> {
-                    { tick, price }
+                    { tick, value }
                 }
             }
         );

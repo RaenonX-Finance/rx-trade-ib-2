@@ -29,7 +29,8 @@ public partial class IbApiHandler {
     }
 
     public void tickSize(int requestId, int pxTickInt, decimal size) {
-        if (size <= 0) {
+        var actualSize = size.MaxValueAsNull();
+        if (actualSize is null) {
             // Field unavailable
             return;
         }
@@ -39,12 +40,12 @@ public partial class IbApiHandler {
         if (contract is null || !tick.IsPxTickIncluded(contract)) {
             return;
         }
-
-        Log.Debug(
-            "#{RequestId}: Received tick type {TickTypeInt} of size {Size}",
+        
+        Hub.SendPxUpdate(
             requestId,
+            contract.ConId,
             tick,
-            size
+            decimal.ToDouble(actualSize.Value)
         );
     }
 

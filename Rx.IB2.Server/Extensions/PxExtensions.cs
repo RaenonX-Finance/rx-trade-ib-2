@@ -13,7 +13,9 @@ public static class PxExtensions {
         PxTick.Mark,
         PxTick.Delta,
         PxTick.Theta,
-        PxTick.ModelOptionPx
+        PxTick.ModelOptionPx,
+        PxTick.OptionCallOpenInterest,
+        PxTick.OptionPutOpenInterest,
     ];
 
     private static readonly HashSet<PxTick> PxTicksToIncludeForFutures = [PxTick.Last];
