@@ -6,7 +6,7 @@ public enum SignalREvents {
     AccountPnlUpdate,
     Error,
     MarginInfo,
-    OptionChainParams,
+    OptionDefinitions,
     OrderRecordOpen,
     OrderRecordCompleted,
     OrderCancelled,

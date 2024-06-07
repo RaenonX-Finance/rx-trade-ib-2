@@ -95,18 +95,18 @@ public static class SignalRHubExtensions {
         );
     }
 
-    public static void SendOptionChainParams(
+    public static void SendOptionDefinitions(
         this IHubContext<SignalRHub> hub,
         int requestId,
         OptionDefinitionMessage message
     ) {
         Log.Information(
-            "#{RequestId}: SignalR sends option chain params [{UnderlyingContractId}] ({TradingClass})",
+            "#{RequestId}: SignalR sends option definitions of [{UnderlyingContractId}] ({TradingClass})",
             requestId,
             message.UnderlyingContractId,
             message.TradingClass
         );
-        hub.Clients.All.SendAsync(SignalREvents.OptionChainParams.ToString(), message);
+        hub.Clients.All.SendAsync(SignalREvents.OptionDefinitions.ToString(), message);
     }
 
     private static void SendOrder(

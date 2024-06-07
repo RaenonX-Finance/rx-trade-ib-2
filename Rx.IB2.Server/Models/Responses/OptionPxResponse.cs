@@ -1,11 +1,12 @@
 ﻿using JetBrains.Annotations;
+using Rx.IB2.Enums;
 
 namespace Rx.IB2.Models.Responses;
 
 public struct OptionContractIdPair {
     [UsedImplicitly]
     public required string Expiry { get; init; }
-    
+
     [UsedImplicitly]
     public required double Strike { get; init; }
 
@@ -17,6 +18,9 @@ public struct OptionContractIdPair {
 }
 
 public struct OptionPxResponse {
+    [UsedImplicitly]
+    public required OptionPxRequestOrigin Origin { get; init; }
+
     [UsedImplicitly]
     public required List<int> RealtimeRequestIds { get; init; }
 

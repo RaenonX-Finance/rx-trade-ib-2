@@ -1,8 +1,12 @@
 ﻿using JetBrains.Annotations;
+using Rx.IB2.Enums;
 
 namespace Rx.IB2.Models.Messages;
 
 public struct OptionDefinitionMessage {
+    [UsedImplicitly]
+    public required OptionPxRequestOrigin Origin { get; init; }
+    
     [UsedImplicitly]
     public required HashSet<string> TradingClass { get; init; }
 

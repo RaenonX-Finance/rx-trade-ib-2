@@ -52,7 +52,12 @@ public partial class IbApiHandler {
     }
 
     public void securityDefinitionOptionParameterEnd(int requestId) {
-        Hub.SendOptionChainParams(requestId, OptionDefinitionsManager.GetMessage(requestId));
+        var message = OptionDefinitionsManager.GetMessage(requestId);
+        if (message is null) {
+            return;
+        }
+        
+        Hub.SendOptionDefinitions(requestId, message.Value);
     }
 
     public void tickReqParams(int requestId, double minTick, string bboExchange, int snapshotPermissions) {
