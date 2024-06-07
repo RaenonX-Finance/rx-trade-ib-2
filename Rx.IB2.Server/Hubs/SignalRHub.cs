@@ -82,7 +82,7 @@ public class SignalRHub(
     }
 
     public Task<OptionPxResponse> RequestPxOfOptionChain(OptionPxSubscribeRequest request) {
-        return Task.FromResult(Sender.RequestOptionChainPrice(request));
+        return Sender.RequestOptionChainPrice(request);
     }
 
     public Task<IEnumerable<ContractModel>> RequestContractDetails(string symbol) {

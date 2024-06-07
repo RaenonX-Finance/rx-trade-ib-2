@@ -304,7 +304,9 @@ public class IbApiSender(
     }
 
     private List<int> RequestRealtimeFromContract(
-        string account, Contract contract, Action<Contract> onObtainedContract
+        string account,
+        Contract contract,
+        Action<Contract> onObtainedContract
     ) {
         var requestIds = new List<int>();
 
@@ -324,7 +326,7 @@ public class IbApiSender(
         return requestIds;
     }
 
-    public OptionPxResponse RequestOptionChainPrice(OptionPxSubscribeRequest request) {
+    public async Task<OptionPxResponse> RequestOptionChainPrice(OptionPxSubscribeRequest request) {
         Log.Information(
             "Received option Px subscription request of {Symbol} expiring {Expiry} at {@Strikes}",
             request.Symbol,
@@ -332,40 +334,45 @@ public class IbApiSender(
             request.Strikes
         );
 
-        var realtimeRequestIds = new List<int>();
+        var realtimeRequestIds = new List<Task<List<int>>>();
         var callContracts = new Dictionary<double, Contract>();
         var putContracts = new Dictionary<double, Contract>();
 
         foreach (var strike in request.Strikes) {
-            var callContract = ContractMaker.MakeOptions(
-                request.Symbol,
-                request.Expiry,
-                OptionRight.Call,
-                strike,
-                request.TradingClass
-            );
-            realtimeRequestIds.AddRange(RequestRealtimeFromContract(
-                request.Account,
-                callContract,
-                contract => callContracts.Add(strike, contract)
-            ));
+            realtimeRequestIds.Add(Task.Run(() => {
+                var callContract = ContractMaker.MakeOptions(
+                    request.Symbol,
+                    request.Expiry,
+                    OptionRight.Call,
+                    strike,
+                    request.TradingClass
+                );
 
-            var putContract = ContractMaker.MakeOptions(
-                request.Symbol,
-                request.Expiry,
-                OptionRight.Put,
-                strike,
-                request.TradingClass
-            );
-            realtimeRequestIds.AddRange(RequestRealtimeFromContract(
-                request.Account,
-                putContract,
-                contract => putContracts.Add(strike, contract)
-            ));
+                return RequestRealtimeFromContract(
+                    request.Account,
+                    callContract,
+                    contract => callContracts.Add(strike, contract)
+                );
+            }));
+            realtimeRequestIds.Add(Task.Run(() => {
+                var putContract = ContractMaker.MakeOptions(
+                    request.Symbol,
+                    request.Expiry,
+                    OptionRight.Put,
+                    strike,
+                    request.TradingClass
+                );
+
+                return RequestRealtimeFromContract(
+                    request.Account,
+                    putContract,
+                    contract => putContracts.Add(strike, contract)
+                );
+            }));
         }
 
         return new OptionPxResponse {
-            RealtimeRequestIds = realtimeRequestIds,
+            RealtimeRequestIds = (await Task.WhenAll(realtimeRequestIds)).SelectMany(x => x).ToList(),
             ContractIdPairs = callContracts.Keys
                 .Concat(putContracts.Keys)
                 .Distinct()
