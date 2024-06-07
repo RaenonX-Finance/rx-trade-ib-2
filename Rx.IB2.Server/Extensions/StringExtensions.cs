@@ -45,6 +45,7 @@ public static class StringExtensions {
     }
 
     public static SecurityType ToSecurityType(this string securityType) {
+        // Reverse mapping of `EnumExtension.ToIbApiSecurityType()`
         return securityType switch {
             "STK" => SecurityType.Stocks,
             "FUT" => SecurityType.Futures,

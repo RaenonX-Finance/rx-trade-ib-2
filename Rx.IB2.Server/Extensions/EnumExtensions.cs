@@ -71,6 +71,18 @@ public static class EnumExtensions {
 
         throw new ArgumentException($"Unhandled size-to-default-duration conversion for {size}");
     }
+    
+    public static string ToIbApiSecurityType(this SecurityType securityType) {
+        // Reverse mapping of `StringExtension.ToSecurityType()`
+        return securityType switch {
+            SecurityType.Stocks => "STK",
+            SecurityType.Futures => "FUT",
+            SecurityType.ContinuousFutures => "CONTFUT",
+            SecurityType.Options => "OPT",
+            SecurityType.OptionsCombo => "BAG",
+            _ => throw new ArgumentOutOfRangeException(nameof(securityType), $"Invalid security type: {securityType}")
+        };
+    }
 
     public static bool IsFuturesType(this SecurityType securityType) {
         return securityType is SecurityType.Futures or SecurityType.ContinuousFutures;

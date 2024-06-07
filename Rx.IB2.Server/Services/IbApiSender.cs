@@ -276,6 +276,7 @@ public class IbApiSender(
         foreach (var contractDetail in RequestContractDetails(request.Symbol.ToContract(options))) {
             var requestId = RequestManager.GetNextRequestIdNoCancel();
             var contract = contractDetail.Contract;
+            var contractModel = contract.ToContractModel();
 
             // Request price quote at the same time to let UI decide what strikes to use
             RequestRealtime(request.Account, contract);
@@ -290,8 +291,8 @@ public class IbApiSender(
             ClientSocket.reqSecDefOptParams(
                 requestId,
                 contract.Symbol,
-                contract.Exchange,
-                contract.SecType,
+                contractModel.ExchangeForOptionDefinitionsQuery,
+                contractModel.SecTypeForOptionDefinitionsQuery,
                 contract.ConId
             );
         }

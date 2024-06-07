@@ -24,8 +24,13 @@ public partial class IbApiHandler {
     }
 
     public void securityDefinitionOptionParameter(
-        int requestId, string exchange, int underlyingContractId, string tradingClass,
-        string multiplier, HashSet<string> expirations, HashSet<double> strikes
+        int requestId,
+        string exchange,
+        int underlyingContractId,
+        string tradingClass,
+        string multiplier,
+        HashSet<string> expirations,
+        HashSet<double> strikes
     ) {
         Log.Information(
             "#{RequestId}: Received option definitions of {UnderlyingSymbol} " +
@@ -37,8 +42,12 @@ public partial class IbApiHandler {
             exchange
         );
         OptionDefinitionsManager.AddOptionParam(
-            requestId, underlyingContractId, exchange, tradingClass,
-            expirations, strikes
+            requestId,
+            underlyingContractId,
+            exchange,
+            tradingClass,
+            expirations,
+            strikes
         );
     }
 
