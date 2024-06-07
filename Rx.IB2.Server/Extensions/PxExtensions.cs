@@ -13,6 +13,7 @@ public static class PxExtensions {
         PxTick.Mark,
         PxTick.Delta,
         PxTick.Theta,
+        PxTick.Gamma,
         PxTick.ModelOptionPx,
         PxTick.OptionCallOpenInterest,
         PxTick.OptionPutOpenInterest,
