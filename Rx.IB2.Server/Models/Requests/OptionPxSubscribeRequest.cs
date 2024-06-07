@@ -10,7 +10,7 @@ public struct OptionPxSubscribeRequest {
     public required string Symbol { get; init; }
 
     [UsedImplicitly]
-    public required string Expiry { get; init; }
+    public required HashSet<string> Expiry { get; init; }
 
     [UsedImplicitly]
     public required string TradingClass { get; init; }
