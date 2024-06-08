@@ -138,8 +138,7 @@ public class IbApiSender(
         }
 
         Log.Information(
-            "#{RequestId}: Subscribing realtime data of {CustomCont" +
-            "ractSymbol} ({MarketDataType})",
+            "#{RequestId}: Subscribing realtime data of {CustomContractSymbol} ({MarketDataType})",
             requestId,
             contract.ToCustomContractSymbol(),
             marketDataType
