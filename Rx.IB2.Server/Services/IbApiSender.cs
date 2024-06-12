@@ -124,7 +124,7 @@ public class IbApiSender(
     public int? RequestRealtime(string account, Contract contract, MarketDataType marketDataType) {
         var isSubscribing = RequestManager.IsContractSubscribingRealtime(account, contract);
         if (isSubscribing && marketDataType != MarketDataType.Frozen) {
-            Log.Information("Contract [{ContractId}] is already subscribed to market data", contract.ConId);
+            Log.Information("Contract [{ContractId}] already subscribed to market data", contract.ConId);
             return null;
         }
 
@@ -306,7 +306,9 @@ public class IbApiSender(
             var contract = contractDetail.Contract;
             var contractModel = contract.ToContractModel();
 
-            // Request price quote at the same time to let UI decide what strikes to use
+            // Requesting the underlying price at the same time for various reasons, such as:
+            // - Calculating GEX
+            // - Options strike to use
             RequestRealtime(request.Account, contractDetail);
 
             OptionDefinitionsManager.EnterLock(requestId);

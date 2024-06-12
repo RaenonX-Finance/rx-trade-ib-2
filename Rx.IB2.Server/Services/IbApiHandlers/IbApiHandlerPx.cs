@@ -133,9 +133,9 @@ public partial class IbApiHandler {
             new Dictionary<PxTick, double> {
                 { tick, optPrice },
                 { PxTick.Delta, delta },
-                { PxTick.Vega, vega },
                 { PxTick.Gamma, gamma },
                 { PxTick.Theta, theta },
+                { PxTick.Vega, vega },
                 { PxTick.OptionsUnderlyingPx, underlyingPx },
                 { PxTick.PvDividend, pvDividend },
                 { PxTick.ImpliedVolatility, impliedVolatility }
