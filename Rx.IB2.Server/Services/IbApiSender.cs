@@ -105,7 +105,7 @@ public class IbApiSender(
         CancelRequests(account);
     }
 
-    private int? RequestRealtimeFrozen(string account, ContractDetails contractDetails) {
+    private int? SubscribeRealtimeFrozen(string account, ContractDetails contractDetails) {
         var securityType = contractDetails.Contract.SecType.ToSecurityType();
         if (
             securityType != SecurityType.Options ||
@@ -114,14 +114,14 @@ public class IbApiSender(
             return null;
         }
 
-        return RequestRealtime(account, contractDetails.Contract, MarketDataType.Frozen);
+        return SubscribeRealtime(account, contractDetails.Contract, MarketDataType.Frozen);
     }
 
-    private int? RequestRealtime(string account, ContractDetails contractDetails) {
-        return RequestRealtime(account, contractDetails.Contract, MarketDataType.Live);
+    private int? SubscribeRealtime(string account, ContractDetails contractDetails) {
+        return SubscribeRealtime(account, contractDetails.Contract, MarketDataType.Live);
     }
 
-    public int? RequestRealtime(string account, Contract contract, MarketDataType marketDataType) {
+    public int? SubscribeRealtime(string account, Contract contract, MarketDataType marketDataType) {
         var isSubscribing = RequestManager.IsContractSubscribingRealtime(account, contract);
         if (isSubscribing && marketDataType != MarketDataType.Frozen) {
             Log.Information("Contract [{ContractId}] already subscribed to market data", contract.ConId);
@@ -213,7 +213,7 @@ public class IbApiSender(
         RequestCompletedOrders();
     }
 
-    public int? RequestPxHistoryForQuote(HistoryPxRequestForQuote request) {
+    public int? SubscribePxHistoryForQuote(HistoryPxRequestForQuote request) {
         var requestId = RequestManager.GetNextRequestId(
             IbApiRequestType.History,
             request.Account,
@@ -309,7 +309,7 @@ public class IbApiSender(
             // Requesting the underlying price at the same time for various reasons, such as:
             // - Calculating GEX
             // - Options strike to use
-            RequestRealtime(request.Account, contractDetail);
+            SubscribeRealtime(request.Account, contractDetail);
 
             OptionDefinitionsManager.EnterLock(requestId);
 
@@ -328,7 +328,7 @@ public class IbApiSender(
         }
     }
 
-    private List<int> RequestRealtimeFromContract(
+    private List<int> SubscribeRealtimeFromContract(
         string account,
         Contract contract,
         Action<Contract> onObtainedContract
@@ -339,7 +339,7 @@ public class IbApiSender(
             var contractFromDetail = contractDetail.Contract;
 
             onObtainedContract(contractFromDetail);
-            var requestId = RequestRealtime(account, contractDetail);
+            var requestId = SubscribeRealtime(account, contractDetail);
             if (requestId is null) {
                 continue;
             }
@@ -350,18 +350,18 @@ public class IbApiSender(
         return requestIds;
     }
 
-    private List<int> RequestFrozenRealtimeFromContract(
+    private List<int> SubscribeFrozenRealtimeFromContract(
         string account,
         Contract contract
     ) {
         return RequestContractDetails(contract)
-            .Select(contractDetail => RequestRealtimeFrozen(account, contractDetail))
+            .Select(contractDetail => SubscribeRealtimeFrozen(account, contractDetail))
             .Where(requestId => requestId is not null)
             .OfType<int>()
             .ToList();
     }
 
-    public async Task<OptionPxResponse> RequestOptionsPx(OptionPxSubscribeRequest request) {
+    public async Task<OptionPxResponse> SubscribeOptionsPx(OptionPxSubscribeRequest request) {
         Log.Information(
             "Received option Px subscription request of {Symbol} expiring {@Expiry} at {@Strikes}",
             request.Symbol,
@@ -383,7 +383,7 @@ public class IbApiSender(
                         request.TradingClass
                     );
 
-                    return RequestRealtimeFromContract(
+                    return SubscribeRealtimeFromContract(
                         request.Account,
                         callContract,
                         contract => contracts.AddOrUpdate(
@@ -406,7 +406,7 @@ public class IbApiSender(
                         request.TradingClass
                     );
 
-                    return RequestRealtimeFromContract(
+                    return SubscribeRealtimeFromContract(
                         request.Account,
                         putContract,
                         contract => contracts.AddOrUpdate(
@@ -426,7 +426,7 @@ public class IbApiSender(
         var realTimeRequestLiveIds = await Task.WhenAll(realtimeRequestLiveFetchIds);
         var realTimeRequestFrozenIds = await Task.WhenAll(
             contracts.Values
-                .Select(contract => Task.Run(() => RequestFrozenRealtimeFromContract(request.Account, contract)))
+                .Select(contract => Task.Run(() => SubscribeFrozenRealtimeFromContract(request.Account, contract)))
         );
 
         return new OptionPxResponse {

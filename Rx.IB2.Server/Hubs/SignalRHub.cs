@@ -56,7 +56,7 @@ public class SignalRHub(
         return Task.CompletedTask;
     }
 
-    public Task RequestPxTick(PxDataRequest pxDataRequest) {
+    public Task SubscribePxTick(PxDataRequest pxDataRequest) {
         var contract = RequestManager.GetContractFromPool(pxDataRequest.ContractId);
 
         if (contract is null) {
@@ -69,16 +69,16 @@ public class SignalRHub(
             return Task.CompletedTask;
         }
 
-        Sender.RequestRealtime(pxDataRequest.Account, contract, MarketDataType.Live);
+        Sender.SubscribeRealtime(pxDataRequest.Account, contract, MarketDataType.Live);
         return Task.CompletedTask;
     }
 
-    public Task<int?> RequestPxHistory(HistoryPxRequestForQuote request) {
-        return Task.FromResult(Sender.RequestPxHistoryForQuote(request));
+    public Task<int?> SubscribePxHistory(HistoryPxRequestForQuote request) {
+        return Task.FromResult(Sender.SubscribePxHistoryForQuote(request));
     }
 
-    public Task<OptionPxResponse> RequestPxOfOptions(OptionPxSubscribeRequest request) {
-        return Sender.RequestOptionsPx(request);
+    public Task<OptionPxResponse> SubscribePxOfOptions(OptionPxSubscribeRequest request) {
+        return Sender.SubscribeOptionsPx(request);
     }
 
     public Task<IEnumerable<ContractModel>> RequestContractDetails(string symbol) {
