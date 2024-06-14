@@ -3,6 +3,7 @@ using Rx.IB2.Enums;
 using Rx.IB2.Extensions;
 using Rx.IB2.Models;
 using Rx.IB2.Models.Requests;
+using Rx.IB2.Models.Requests.OptionVolatilityHistoryRequest;
 using Rx.IB2.Models.Responses;
 using Rx.IB2.Services;
 using Rx.IB2.Services.IbApiSenders;
@@ -76,6 +77,10 @@ public class SignalRHub(
 
     public Task<int?> SubscribePxHistory(PxHistoryRequest request) {
         return Task.FromResult(Sender.SubscribePxHistory(request));
+    }
+
+    public Task<List<int?>> SubscribeOptionVolatilityHistory(OptionVolatilityHistoryRequest request) {
+        return Task.FromResult(Sender.SubscribeOptionVolatilityHistory(request));
     }
 
     public Task<OptionPxResponse> SubscribePxOfOptions(OptionPxRequest request) {

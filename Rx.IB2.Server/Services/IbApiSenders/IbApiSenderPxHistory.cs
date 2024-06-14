@@ -3,6 +3,7 @@ using Rx.IB2.Extensions;
 using Rx.IB2.Interfaces;
 using Rx.IB2.Models;
 using Rx.IB2.Models.Requests;
+using Rx.IB2.Models.Requests.OptionVolatilityHistoryRequest;
 
 namespace Rx.IB2.Services.IbApiSenders;
 
@@ -24,6 +25,24 @@ public partial class IbApiSender {
         );
 
         return RequestPxHistory(request, requestId);
+    }
+
+    public List<int?> SubscribeOptionVolatilityHistory(OptionVolatilityHistoryRequest request) {
+        var requestId = RequestManager.GetNextRequestId(
+            IbApiRequestType.History,
+            request.Account
+        );
+
+        Log.Information(
+            "#{RequestId}: Requesting volatility history of {Symbol}",
+            requestId,
+            request.Symbol
+        );
+
+        return [
+            RequestPxHistory(request.AsHistoryVolatilityRequestHv(), requestId),
+            RequestPxHistory(request.AsHistoryVolatilityRequestIv(), requestId),
+        ];
     }
 
     private int? RequestPxHistory(IHistoryPxRequest request, int requestId) {
