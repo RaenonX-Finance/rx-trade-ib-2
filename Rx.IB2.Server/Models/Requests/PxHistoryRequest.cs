@@ -29,7 +29,7 @@ public readonly struct PxHistoryRequest : IHistoryPxRequest {
     public bool IsSubscription => true;
 
     public HistoryDataType DataType =>
-        Contract.SecType.ToSecurityType() == SecurityType.Options ? HistoryDataType.MidPoint : HistoryDataType.Trades;
+        Contract.SecType.ToSecurityType() == SecurityType.Options ? HistoryDataType.Midpoint : HistoryDataType.Trades;
 
     public BarSize BarSize => Interval.ToBarSize();
 
