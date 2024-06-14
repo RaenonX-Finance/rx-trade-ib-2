@@ -183,7 +183,6 @@ public partial class IbApiHandler {
 
     public void historicalDataUpdate(int requestId, Bar bar) {
         var meta = HistoryPxRequestManager.GetMeta(requestId);
-
         if (meta is null) {
             Log.Warning("#{RequestId}: History Px does not have associated metadata", requestId);
             return;
@@ -209,7 +208,6 @@ public partial class IbApiHandler {
         }
 
         var meta = HistoryPxRequestManager.GetMeta(requestId);
-
         if (meta is null) {
             Log.Warning("#{RequestId}: History Px does not have associated metadata", requestId);
             return;

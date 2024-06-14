@@ -23,10 +23,10 @@ public partial class IbApiSender {
             request.Duration
         );
 
-        return RequestPxHistory(request, requestId, useLock: false);
+        return RequestPxHistory(request, requestId);
     }
 
-    private int? RequestPxHistory(IHistoryPxRequest request, int requestId, bool useLock = false) {
+    private int? RequestPxHistory(IHistoryPxRequest request, int requestId) {
         ClientSocket.reqHistoricalData(
             requestId,
             request.Contract,
@@ -39,10 +39,6 @@ public partial class IbApiSender {
             request.IsSubscription,
             null
         );
-
-        if (useLock) {
-            HistoryPxRequestManager.EnterLock(requestId);
-        }
 
         if (request.Contract.ConId == default) {
             Log.Error("#{RequestId}: Contract ID on history Px request unavailable", requestId);
