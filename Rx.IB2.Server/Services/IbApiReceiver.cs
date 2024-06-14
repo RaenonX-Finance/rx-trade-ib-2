@@ -4,17 +4,12 @@ using ILogger = Serilog.ILogger;
 
 namespace Rx.IB2.Services;
 
-public class IbApiReceiver : BackgroundService {
+public class IbApiReceiver(IbApiHandler handler) : BackgroundService {
     private static readonly ILogger Log = Serilog.Log.ForContext(typeof(IbApiReceiver));
 
-    private EReader Reader { get; }
+    private EReader Reader { get; } = new(handler.ClientSocket, handler.ReaderSignal);
 
-    private IbApiHandler Handler { get; }
-
-    public IbApiReceiver(IbApiHandler handler) {
-        Reader = new EReader(handler.ClientSocket, handler.ReaderSignal);
-        Handler = handler;
-    }
+    private IbApiHandler Handler { get; } = handler;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
         Log.Information("Starting IB API receiver");
