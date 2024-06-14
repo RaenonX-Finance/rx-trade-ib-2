@@ -7,7 +7,7 @@ namespace Rx.IB2.Services.IbApiSenders;
 public partial class IbApiSender {
     private static Task Throttle() {
         // Throttle to avoid hitting IBKR API message count limit
-        return Task.Delay(30);
+        return Task.Delay(50);
     }
 
     private void CancelRequests(string account) {
