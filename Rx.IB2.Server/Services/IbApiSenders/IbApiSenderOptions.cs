@@ -175,9 +175,9 @@ public partial class IbApiSender {
                             contract,
                             (_, _) => contract
                         ),
-                        OptionPxTargetTick
+                        OptionPxTargetTicks
                     );
-                    RequestFrozenRealtimeFromContract(request.Account, callContract, OptionPxTargetTick);
+                    RequestFrozenRealtimeFromContract(request.Account, callContract, OptionPxTargetTicks);
                 }));
                 await Throttle();
                 tasksOfExpiry.Add(Task.Run(() => {
@@ -202,9 +202,9 @@ public partial class IbApiSender {
                             contract,
                             (_, _) => contract
                         ),
-                        OptionPxTargetTick
+                        OptionPxTargetTicks
                     );
-                    RequestFrozenRealtimeFromContract(request.Account, putContract, OptionPxTargetTick);
+                    RequestFrozenRealtimeFromContract(request.Account, putContract, OptionPxTargetTicks);
                 }));
                 await Throttle();
             }

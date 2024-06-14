@@ -31,8 +31,10 @@ public partial class IbApiSender(
 
     private IConfiguration Config { get; } = config;
 
-    private static readonly PxTick[] OptionPxTargetTick = [
+    private static readonly PxTick[] OptionPxTargetTicks = [
         PxTick.ModelOptionPx,
+        PxTick.Bid,
+        PxTick.Ask,
         PxTick.Mark,
         PxTick.Delta,
         PxTick.Gamma,
