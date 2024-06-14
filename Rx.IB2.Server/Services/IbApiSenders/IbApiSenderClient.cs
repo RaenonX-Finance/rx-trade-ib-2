@@ -5,6 +5,11 @@ using Rx.IB2.Extensions;
 namespace Rx.IB2.Services.IbApiSenders;
 
 public partial class IbApiSender {
+    private static Task Throttle() {
+        // Throttle to avoid hitting IBKR API message count limit
+        return Task.Delay(30);
+    }
+
     private void CancelRequests(string account) {
         Log.Information("Cancelling all requests of {Account}", account);
         RequestManager.CancelRequest(

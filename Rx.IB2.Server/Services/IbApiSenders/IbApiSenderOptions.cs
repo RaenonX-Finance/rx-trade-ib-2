@@ -93,6 +93,7 @@ public partial class IbApiSender {
                         )
                     );
                 }));
+                await Throttle();
                 realtimeRequestLiveFetchIds.Add(Task.Run(() => {
                     var putContract = ContractMaker.MakeOptions(
                         request.Symbol,
@@ -112,6 +113,7 @@ public partial class IbApiSender {
                         )
                     );
                 }));
+                await Throttle();
             }
         }
 
@@ -177,6 +179,7 @@ public partial class IbApiSender {
                     );
                     RequestFrozenRealtimeFromContract(request.Account, callContract, OptionPxTargetTick);
                 }));
+                await Throttle();
                 tasksOfExpiry.Add(Task.Run(() => {
                     var putContract = ContractMaker.MakeOptions(
                         request.Symbol,
@@ -203,6 +206,7 @@ public partial class IbApiSender {
                     );
                     RequestFrozenRealtimeFromContract(request.Account, putContract, OptionPxTargetTick);
                 }));
+                await Throttle();
             }
 
             // Wait for all the tasks of the current `expiry` to complete before requesting another `expiry`
