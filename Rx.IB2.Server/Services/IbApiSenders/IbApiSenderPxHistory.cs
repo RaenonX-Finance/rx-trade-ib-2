@@ -33,7 +33,7 @@ public partial class IbApiSender {
             request.IsSubscription ? "" : DateTime.Now.ToUniversalTime().ToIbApiFormat(),
             request.Duration,
             request.BarSize.ToString(),
-            request.DataType.ToString().ToUpper(),
+            request.DataType.ToString().ToSnakeCase().ToUpper(),
             Convert.ToInt32(request.RthOnly),
             1, // 1 for "yyyyMMdd HH:mm:ss"; 2 for system format
             request.IsSubscription,

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using Rx.IB2.Enums;
 
 namespace Rx.IB2.Extensions;
@@ -26,6 +27,29 @@ public static class StringExtensions {
 
     private static string ToTitleCase(this string str) {
         return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(str.ToLower());
+    }
+
+    public static string ToSnakeCase(this string text) {
+        ArgumentNullException.ThrowIfNull(text);
+
+        if (text.Length < 2) {
+            return text.ToLowerInvariant();
+        }
+
+        var sb = new StringBuilder();
+        sb.Append(char.ToLowerInvariant(text[0]));
+        for (var i = 1; i < text.Length; ++i) {
+            var c = text[i];
+
+            if (char.IsUpper(c)) {
+                sb.Append('_');
+                sb.Append(char.ToLowerInvariant(c));
+            } else {
+                sb.Append(c);
+            }
+        }
+
+        return sb.ToString();
     }
 
     public static AccountSummaryKey? ToAccountSummaryKey(this string summaryKey) {
@@ -68,13 +92,13 @@ public static class StringExtensions {
 
     public static (string Symbol, string Exchange) ToFuturesInfo(this string symbolAtExchange) {
         var futuresInfo = symbolAtExchange.Split("@");
-        
+
         if (futuresInfo.Length < 2) {
             throw new ArgumentException(
                 $"Futures symbol ({symbolAtExchange}) invalid. An example would be NQ@CME."
             );
         }
-        
+
         return (futuresInfo[0], futuresInfo[1]);
     }
 }
