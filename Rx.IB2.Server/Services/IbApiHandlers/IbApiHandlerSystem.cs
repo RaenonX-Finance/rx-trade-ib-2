@@ -21,6 +21,11 @@ public partial class IbApiHandler {
             return;
         }
 
+        if (RequestManager.IsRequestCancelled(requestId)) {
+            // Request already cancelled, error from it should be fine getting disregarded
+            return;
+        }
+        
         Log.Error("#{RequestId}: [{Code}] {Message}", requestId, errorCode, errorMsg);
     }
 

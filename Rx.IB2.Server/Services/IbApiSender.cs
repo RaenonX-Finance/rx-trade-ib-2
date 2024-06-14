@@ -20,7 +20,8 @@ public class IbApiSender(
     IbApiRequestManager requestManager,
     IbApiHistoryPxRequestManager historyPxRequestManager,
     IbApiContractDetailsManager contractDetailsManager,
-    IbApiOptionDefinitionsManager optionDefinitionsManager
+    IbApiOptionDefinitionsManager optionDefinitionsManager,
+    IbApiOneTimePxRequestManager oneTimePxRequestManager
 ) {
     private static readonly ILogger Log = Serilog.Log.ForContext(typeof(IbApiSender));
 
@@ -34,7 +35,22 @@ public class IbApiSender(
 
     private IbApiOptionDefinitionsManager OptionDefinitionsManager { get; } = optionDefinitionsManager;
 
+    private IbApiOneTimePxRequestManager OneTimePxRequestManager { get; } = oneTimePxRequestManager;
+
     private IConfiguration Config { get; } = config;
+
+    private static readonly PxTick[] OptionPxTargetTick = [
+        PxTick.ModelOptionPx,
+        PxTick.Mark,
+        PxTick.Delta,
+        PxTick.Gamma,
+        PxTick.Theta,
+        PxTick.Vega,
+        PxTick.ImpliedVolatility,
+        PxTick.PvDividend,
+        PxTick.OptionCallOpenInterest,
+        PxTick.OptionPutOpenInterest
+    ];
 
     private void CancelRequests(string account) {
         Log.Information("Cancelling all requests of {Account}", account);
@@ -61,6 +77,7 @@ public class IbApiSender(
                             $"Unhandled request type to cancel: {request.Type}"
                         );
                 }
+                RequestManager.MarkRequestCancelled(request.Id);
             }
         );
     }
@@ -121,10 +138,18 @@ public class IbApiSender(
         return SubscribeRealtime(account, contractDetails.Contract, MarketDataType.Live);
     }
 
-    public int? SubscribeRealtime(string account, Contract contract, MarketDataType marketDataType) {
+    private int? SubscribeRealtime(
+        string account,
+        Contract contract,
+        MarketDataType marketDataType,
+        Action<int>? onBeforeSubscriptionRequest
+    ) {
         var isSubscribing = RequestManager.IsContractSubscribingRealtime(account, contract);
         if (isSubscribing && marketDataType != MarketDataType.Frozen) {
-            Log.Information("Contract [{ContractId}] already subscribed to market data", contract.ConId);
+            Log.Information(
+                "Contract [{ContractId}] already subscribed to market data, not re-subscribing",
+                contract.ConId
+            );
             return null;
         }
 
@@ -147,6 +172,8 @@ public class IbApiSender(
         // Make sure `contract` has exchange set
         contract.AddExchangeOnContract();
 
+        onBeforeSubscriptionRequest?.Invoke(requestId);
+
         ClientSocket.reqMarketDataType((int)marketDataType);
         ClientSocket.reqMktData(
             requestId,
@@ -158,6 +185,36 @@ public class IbApiSender(
         );
 
         return requestId;
+    }
+
+    public int? SubscribeRealtime(string account, Contract contract, MarketDataType marketDataType) {
+        return SubscribeRealtime(account, contract, marketDataType, null);
+    }
+
+    private void RequestRealtime(
+        string account,
+        ContractDetails contractDetails,
+        MarketDataType marketDataType,
+        IEnumerable<PxTick> targetTicks
+    ) {
+        SubscribeRealtime(
+            account,
+            contractDetails.Contract,
+            marketDataType,
+            (requestId) => OneTimePxRequestManager.RecordTarget(requestId, targetTicks)
+        );
+    }
+
+    private void RequestRealtimeFrozen(string account, ContractDetails contractDetails, IEnumerable<PxTick> pxTicks) {
+        var securityType = contractDetails.Contract.SecType.ToSecurityType();
+        if (
+            securityType != SecurityType.Options ||
+            contractDetails.ToTradingDateIntervals().Any(x => x.IsCurrent())
+        ) {
+            return;
+        }
+
+        RequestRealtime(account, contractDetails, MarketDataType.Frozen, pxTicks);
     }
 
     public void CancelRealtime(string account, int contractId) {
@@ -361,6 +418,30 @@ public class IbApiSender(
             .ToList();
     }
 
+    private void RequestRealtimeFromContract(
+        string account,
+        Contract contract,
+        Action<Contract> onObtainedContract,
+        ICollection<PxTick> targetTicks
+    ) {
+        foreach (var contractDetail in RequestContractDetails(contract)) {
+            var contractFromDetail = contractDetail.Contract;
+
+            onObtainedContract(contractFromDetail);
+            RequestRealtime(account, contractDetail, MarketDataType.Live, targetTicks);
+        }
+    }
+
+    private void RequestFrozenRealtimeFromContract(
+        string account,
+        Contract contract,
+        ICollection<PxTick> targetTicks
+    ) {
+        foreach (var contractDetail in RequestContractDetails(contract)) {
+            RequestRealtimeFrozen(account, contractDetail, targetTicks);
+        }
+    }
+
     public async Task<OptionPxResponse> SubscribeOptionsPx(OptionPxRequest request) {
         Log.Information(
             "Received option Px subscription request of {Symbol} expiring {@Expiry} at {@Strikes}",
@@ -372,8 +453,8 @@ public class IbApiSender(
         var realtimeRequestLiveFetchIds = new List<Task<List<int>>>();
         var contracts = new ConcurrentDictionary<OptionsContractDictKey, Contract>();
 
-        foreach (var strike in request.Strikes) {
-            foreach (var expiry in request.Expiry) {
+        foreach (var expiry in request.Expiry) {
+            foreach (var strike in request.Strikes) {
                 realtimeRequestLiveFetchIds.Add(Task.Run(() => {
                     var callContract = ContractMaker.MakeOptions(
                         request.Symbol,
@@ -387,11 +468,7 @@ public class IbApiSender(
                         request.Account,
                         callContract,
                         contract => contracts.AddOrUpdate(
-                            new OptionsContractDictKey {
-                                Strike = strike,
-                                Expiry = expiry,
-                                Right = OptionRight.Call
-                            },
+                            new OptionsContractDictKey { Strike = strike, Expiry = expiry, Right = OptionRight.Call },
                             contract,
                             (_, _) => contract
                         )
@@ -410,11 +487,7 @@ public class IbApiSender(
                         request.Account,
                         putContract,
                         contract => contracts.AddOrUpdate(
-                            new OptionsContractDictKey {
-                                Strike = strike,
-                                Expiry = expiry,
-                                Right = OptionRight.Put
-                            },
+                            new OptionsContractDictKey { Strike = strike, Expiry = expiry, Right = OptionRight.Put },
                             contract,
                             (_, _) => contract
                         )
@@ -432,6 +505,96 @@ public class IbApiSender(
         return new OptionPxResponse {
             Origin = request.Origin,
             RealtimeRequestIds = realTimeRequestLiveIds.Concat(realTimeRequestFrozenIds).SelectMany(x => x).ToList(),
+            ContractIdPairs = contracts
+                .GroupBy(x => (x.Key.Expiry, x.Key.Strike))
+                .Select(x => new OptionContractIdPair {
+                    Expiry = x.Key.Expiry,
+                    Strike = x.Key.Strike,
+                    Call = x.First(item => item.Key.Right == OptionRight.Call).Value.ConId,
+                    Put = x.First(item => item.Key.Right == OptionRight.Put).Value.ConId
+                })
+                .ToList()
+        };
+    }
+
+    public async Task<OptionPxResponse> RequestOptionsPx(OptionPxRequest request) {
+        Log.Information(
+            "Received option Px one-time request of {Symbol} expiring {@Expiry} at {@Strikes}",
+            request.Symbol,
+            request.Expiry,
+            request.Strikes
+        );
+
+        var contracts = new ConcurrentDictionary<OptionsContractDictKey, Contract>();
+
+        foreach (var expiry in request.Expiry) {
+            var tasksOfExpiry = new List<Task>();
+
+            foreach (var strike in request.Strikes) {
+                tasksOfExpiry.Add(Task.Run(() => {
+                    // Not parallelizing to intentionally delay the real time market data request
+                    var callContract = ContractMaker.MakeOptions(
+                        request.Symbol,
+                        expiry,
+                        OptionRight.Call,
+                        strike,
+                        request.TradingClass
+                    );
+                    contracts.AddOrUpdate(
+                        new OptionsContractDictKey { Strike = strike, Expiry = expiry, Right = OptionRight.Call },
+                        callContract,
+                        (_, _) => callContract
+                    );
+
+                    RequestRealtimeFromContract(
+                        request.Account,
+                        callContract,
+                        contract => contracts.AddOrUpdate(
+                            new OptionsContractDictKey { Strike = strike, Expiry = expiry, Right = OptionRight.Call },
+                            contract,
+                            (_, _) => contract
+                        ),
+                        OptionPxTargetTick
+                    );
+                    RequestFrozenRealtimeFromContract(request.Account, callContract, OptionPxTargetTick);
+                }));
+                tasksOfExpiry.Add(Task.Run(() => {
+                    var putContract = ContractMaker.MakeOptions(
+                        request.Symbol,
+                        expiry,
+                        OptionRight.Put,
+                        strike,
+                        request.TradingClass
+                    );
+                    contracts.AddOrUpdate(
+                        new OptionsContractDictKey { Strike = strike, Expiry = expiry, Right = OptionRight.Put },
+                        putContract,
+                        (_, _) => putContract
+                    );
+
+                    RequestRealtimeFromContract(
+                        request.Account,
+                        putContract,
+                        contract => contracts.AddOrUpdate(
+                            new OptionsContractDictKey { Strike = strike, Expiry = expiry, Right = OptionRight.Put },
+                            contract,
+                            (_, _) => contract
+                        ),
+                        OptionPxTargetTick
+                    );
+                    RequestFrozenRealtimeFromContract(request.Account, putContract, OptionPxTargetTick);
+                }));
+            }
+
+            // Wait for all the tasks of the current `expiry` to complete before requesting another `expiry`
+            await Task.WhenAll(tasksOfExpiry);
+        }
+
+        return new OptionPxResponse {
+            Origin = request.Origin,
+            // Realtime request IDs are sent to client for canceling px on unload.
+            // Since this is a one-time request, no need to send request IDs for cancellations 
+            RealtimeRequestIds = [],
             ContractIdPairs = contracts
                 .GroupBy(x => (x.Key.Expiry, x.Key.Strike))
                 .Select(x => new OptionContractIdPair {

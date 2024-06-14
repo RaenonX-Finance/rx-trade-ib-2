@@ -15,6 +15,9 @@ public class IbApiRequestManager {
 
     // Key = Request ID, Value = Account
     private readonly ConcurrentDictionary<int, string> _requestOfAccount = new();
+    
+    // Key = Request ID
+    private readonly ConcurrentBag<int> _requestCancelled = [];
 
     // Key = Request ID, Value = Contract ID
     private readonly ConcurrentDictionary<int, IbApiContractIdAssociation> _contractAssociationByRequest = new();
@@ -52,6 +55,7 @@ public class IbApiRequestManager {
                 continue;
             }
             
+            MarkRequestCancelled(requestId);
             requestBag.Remove(request.Key, out _);
             _requestOfAccount.Remove(requestId, out _);
             _contractAssociationByRequest.Remove(requestId, out _);
@@ -76,7 +80,8 @@ public class IbApiRequestManager {
                 break;
             }
         }
-        
+
+        MarkRequestCancelled(requestId);
         _requestOfAccount.Remove(requestId, out _);
         _contractAssociationByRequest.Remove(requestId, out _);
     }
@@ -113,8 +118,16 @@ public class IbApiRequestManager {
         });
     }
 
+    public bool IsRequestCancelled(int requestId) {
+        return _requestCancelled.Contains(requestId);
+    }
+
     public void SetRequestId(int requestId) {
         _requestId = requestId;
+    }
+
+    public void MarkRequestCancelled(int requestId) {
+        _requestCancelled.Add(requestId);
     }
 
     private int GetNextRequestId() {

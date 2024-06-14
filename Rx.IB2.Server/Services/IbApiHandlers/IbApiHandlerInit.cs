@@ -20,6 +20,8 @@ public partial class IbApiHandler : EWrapper {
 
     private IbApiOptionDefinitionsManager OptionDefinitionsManager { get; }
 
+    private IbApiOneTimePxRequestManager OneTimePxRequestManager { get; }
+
     public EReaderSignal ReaderSignal { get; }
 
     public EClientSocket ClientSocket { get; }
@@ -29,7 +31,8 @@ public partial class IbApiHandler : EWrapper {
         IbApiRequestManager requestManager,
         IbApiHistoryPxRequestManager historyPxRequestManager,
         IbApiContractDetailsManager contractDetailsManager,
-        IbApiOptionDefinitionsManager optionDefinitionsManager
+        IbApiOptionDefinitionsManager optionDefinitionsManager,
+        IbApiOneTimePxRequestManager oneTimePxRequestManager
     ) {
         ReaderSignal = new EReaderMonitorSignal();
         ClientSocket = new EClientSocket(this, ReaderSignal);
@@ -38,5 +41,6 @@ public partial class IbApiHandler : EWrapper {
         HistoryPxRequestManager = historyPxRequestManager;
         ContractDetailsManager = contractDetailsManager;
         OptionDefinitionsManager = optionDefinitionsManager;
+        OneTimePxRequestManager = oneTimePxRequestManager;
     }
 }

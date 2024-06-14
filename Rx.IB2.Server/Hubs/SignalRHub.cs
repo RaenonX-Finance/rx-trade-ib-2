@@ -81,6 +81,10 @@ public class SignalRHub(
         return Sender.SubscribeOptionsPx(request);
     }
 
+    public Task<OptionPxResponse> RequestPxOfOptions(OptionPxRequest request) {
+        return Sender.RequestOptionsPx(request);
+    }
+
     public Task<IEnumerable<ContractModel>> RequestContractDetails(string symbol) {
         return Task.FromResult(Sender.RequestContractDetails(symbol.ToContract()).Select(x => x.ToContractModel()));
     }

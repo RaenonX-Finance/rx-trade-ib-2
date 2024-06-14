@@ -24,6 +24,7 @@ builder.Services
 builder.Services.AddSingleton<IbApiOptionDefinitionsManager>();
 builder.Services.AddSingleton<IbApiContractDetailsManager>();
 builder.Services.AddSingleton<IbApiHistoryPxRequestManager>();
+builder.Services.AddSingleton<IbApiOneTimePxRequestManager>();
 builder.Services.AddSingleton<IbApiRequestManager>();
 builder.Services.AddSingleton<IbApiHandler>();
 builder.Services.AddHostedService<IbApiReceiver>();

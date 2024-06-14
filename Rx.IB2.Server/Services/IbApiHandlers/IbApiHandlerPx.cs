@@ -5,23 +5,48 @@ using Rx.IB2.Extensions;
 namespace Rx.IB2.Services.IbApiHandlers;
 
 public partial class IbApiHandler {
+    private Contract? OnTickReceived(int requestId, PxTick tick, bool warnOnContractNotFound = false) {
+        var requestIdToCancel = OneTimePxRequestManager.RecordReceivedSingle(requestId, tick);
+
+        var contract = RequestManager.GetContractByRequestId(requestId);
+        if (contract is null) {
+            if (warnOnContractNotFound) {
+                Log.Warning(
+                    "#{RequestId}: Received price tick {Tick} but no corresponding contract found",
+                    requestId,
+                    tick
+                );
+            }
+
+            return null;
+        }
+
+        if (!tick.IsPxTickIncluded(contract)) {
+            return null;
+        }
+
+        if (requestIdToCancel is null) {
+            return contract;
+        }
+
+        Log.Information(
+            "#{RequestId}: All target ticks have been received, cancelling market data subscription",
+            requestIdToCancel
+        );
+        CancelMarketData(requestId);
+
+        return contract;
+    }
+
     public void tickPrice(int requestId, int pxTickInt, double price, TickAttrib attribs) {
         if (price <= 0) {
             // Field unavailable
             return;
         }
 
-        var contract = RequestManager.GetContractByRequestId(requestId);
-        if (contract is null) {
-            Log.Warning(
-                "#{RequestId}: Received price tick but no corresponding contract found",
-                requestId
-            );
-            return;
-        }
-
         var tick = pxTickInt.ToPxTick();
-        if (!tick.IsPxTickIncluded(contract)) {
+        var contract = OnTickReceived(requestId, tick, warnOnContractNotFound: true);
+        if (contract is null) {
             return;
         }
 
@@ -35,9 +60,9 @@ public partial class IbApiHandler {
             return;
         }
 
-        var contract = RequestManager.GetContractByRequestId(requestId);
         var tick = pxTickInt.ToPxTick();
-        if (contract is null || !tick.IsPxTickIncluded(contract)) {
+        var contract = OnTickReceived(requestId, tick, warnOnContractNotFound: true);
+        if (contract is null) {
             return;
         }
 
@@ -55,9 +80,9 @@ public partial class IbApiHandler {
             return;
         }
 
-        var contract = RequestManager.GetContractByRequestId(requestId);
         var tick = pxTickInt.ToPxTick();
-        if (contract is null || !tick.IsPxTickIncluded(contract)) {
+        var contract = OnTickReceived(requestId, tick, warnOnContractNotFound: false);
+        if (contract is null) {
             return;
         }
 
@@ -75,9 +100,9 @@ public partial class IbApiHandler {
             return;
         }
 
-        var contract = RequestManager.GetContractByRequestId(requestId);
         var tick = pxTickInt.ToPxTick();
-        if (contract is null || !tick.IsPxTickIncluded(contract)) {
+        var contract = OnTickReceived(requestId, tick, warnOnContractNotFound: false);
+        if (contract is null) {
             return;
         }
 
@@ -102,18 +127,9 @@ public partial class IbApiHandler {
         double theta,
         double underlyingPx
     ) {
-        var contract = RequestManager.GetContractByRequestId(requestId);
-
-        if (contract is null) {
-            Log.Warning(
-                "#{RequestId}: Received option compute tick but no corresponding contract found",
-                requestId
-            );
-            return;
-        }
-
         var tick = pxTickInt.ToPxTick();
-        if (!tick.IsPxTickIncluded(contract)) {
+        var contract = OnTickReceived(requestId, tick, warnOnContractNotFound: false);
+        if (contract is null) {
             return;
         }
 
@@ -122,6 +138,24 @@ public partial class IbApiHandler {
 
         if (optPrice <= 0) {
             return;
+        }
+
+        var requestIdToCancel = OneTimePxRequestManager.RecordReceivedMultiple(requestId, new HashSet<PxTick> {
+            PxTick.Delta,
+            PxTick.Gamma,
+            PxTick.Theta,
+            PxTick.Vega,
+            PxTick.OptionsUnderlyingPx,
+            PxTick.PvDividend,
+            PxTick.ImpliedVolatility
+        });
+
+        if (requestIdToCancel is not null) {
+            Log.Information(
+                "#{RequestId}: All target ticks have been received, cancelling market data subscription",
+                requestIdToCancel
+            );
+            CancelMarketData(requestId);
         }
 
         // Tick here usually is either one of Bid/Ask/Last/Model
