@@ -7,7 +7,7 @@ using Rx.IB2.Models.Options;
 
 namespace Rx.IB2.Models.Requests;
 
-public readonly struct HistoryPxRequestForQuote : IHistoryPxRequest {
+public readonly struct PxHistoryRequest : IHistoryPxRequest {
     [UsedImplicitly]
     public required string Account { get; init; }
     

@@ -3,7 +3,7 @@ using Rx.IB2.Enums;
 
 namespace Rx.IB2.Models.Requests;
 
-public struct OptionDefinitionRequest {
+public readonly struct OptionDefinitionRequest {
     [UsedImplicitly]
     public required OptionPxRequestOrigin Origin { get; init; }
 

@@ -2,7 +2,7 @@
 
 namespace Rx.IB2.Models.Requests;
 
-public record CancelPxRequest {
+public readonly struct CancelPxRequest {
     [UsedImplicitly]
     public required string Account { get; init; }
 

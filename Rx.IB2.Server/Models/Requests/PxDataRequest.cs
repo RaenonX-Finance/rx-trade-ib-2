@@ -2,7 +2,7 @@
 
 namespace Rx.IB2.Models.Requests;
 
-public struct PxDataRequest {
+public readonly struct PxDataRequest {
     [UsedImplicitly]
     public required string Account { get; init; }
 

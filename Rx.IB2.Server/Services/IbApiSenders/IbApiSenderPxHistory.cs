@@ -7,7 +7,7 @@ using Rx.IB2.Models.Requests;
 namespace Rx.IB2.Services.IbApiSenders;
 
 public partial class IbApiSender {
-    public int? SubscribePxHistoryForQuote(HistoryPxRequestForQuote request) {
+    public int? SubscribePxHistory(PxHistoryRequest request) {
         var requestId = RequestManager.GetNextRequestId(
             IbApiRequestType.History,
             request.Account,
@@ -15,7 +15,7 @@ public partial class IbApiSender {
         );
 
         Log.Information(
-            "#{RequestId}: Requesting {DataType} price of [{ContractId}] @ {Interval} in {Duration} (from Quote)",
+            "#{RequestId}: Requesting {DataType} price of [{ContractId}] @ {Interval} in {Duration}",
             requestId,
             request.DataType,
             request.ContractId,
