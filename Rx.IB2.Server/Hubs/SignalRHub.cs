@@ -77,7 +77,7 @@ public class SignalRHub(
         return Task.FromResult(Sender.SubscribePxHistoryForQuote(request));
     }
 
-    public Task<OptionPxResponse> SubscribePxOfOptions(OptionPxSubscribeRequest request) {
+    public Task<OptionPxResponse> SubscribePxOfOptions(OptionPxRequest request) {
         return Sender.SubscribeOptionsPx(request);
     }
 

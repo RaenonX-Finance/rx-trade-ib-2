@@ -361,7 +361,7 @@ public class IbApiSender(
             .ToList();
     }
 
-    public async Task<OptionPxResponse> SubscribeOptionsPx(OptionPxSubscribeRequest request) {
+    public async Task<OptionPxResponse> SubscribeOptionsPx(OptionPxRequest request) {
         Log.Information(
             "Received option Px subscription request of {Symbol} expiring {@Expiry} at {@Strikes}",
             request.Symbol,

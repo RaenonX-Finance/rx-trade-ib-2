@@ -3,10 +3,13 @@ using Rx.IB2.Enums;
 
 namespace Rx.IB2.Models.Requests;
 
-public struct OptionPxSubscribeRequest {
+public struct OptionPxRequest {
     [UsedImplicitly]
     public required OptionPxRequestOrigin Origin { get; init; }
-    
+
+    [UsedImplicitly]
+    public required OptionPxRequestType Type { get; init; }
+
     [UsedImplicitly]
     public required string Account { get; init; }
 
