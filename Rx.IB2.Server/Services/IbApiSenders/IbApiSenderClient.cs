@@ -42,12 +42,7 @@ public partial class IbApiSender {
     }
 
     public void Connect() {
-        var section = Config.GetSection("TWS");
-        var port = section.GetValue<int>("Port");
-        var clientId = section.GetValue<int>("ClientId");
-
-        Log.Information("Connecting IB API at port {Port} of client ID {ClientId}", port, clientId);
-        ClientSocket.eConnect("localhost", port, clientId);
+        ClientSocket.Connect(Config);
 
         RequestOrders();
     }

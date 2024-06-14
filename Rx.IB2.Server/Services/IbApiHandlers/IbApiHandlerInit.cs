@@ -10,6 +10,8 @@ public partial class IbApiHandler : EWrapper {
 
     private static readonly ILogger Log = Serilog.Log.ForContext(typeof(IbApiHandler));
 
+    private IConfiguration Config { get; }
+
     private IHubContext<SignalRHub> Hub { get; }
 
     private IbApiRequestManager RequestManager { get; }
@@ -27,6 +29,7 @@ public partial class IbApiHandler : EWrapper {
     public EClientSocket ClientSocket { get; }
 
     public IbApiHandler(
+        IConfiguration config,
         IHubContext<SignalRHub> hub,
         IbApiRequestManager requestManager,
         IbApiHistoryPxRequestManager historyPxRequestManager,
@@ -34,6 +37,7 @@ public partial class IbApiHandler : EWrapper {
         IbApiOptionDefinitionsManager optionDefinitionsManager,
         IbApiOneTimePxRequestManager oneTimePxRequestManager
     ) {
+        Config = config;
         ReaderSignal = new EReaderMonitorSignal();
         ClientSocket = new EClientSocket(this, ReaderSignal);
         Hub = hub;

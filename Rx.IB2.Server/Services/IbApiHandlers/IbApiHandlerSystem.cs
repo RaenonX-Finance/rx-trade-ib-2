@@ -1,4 +1,6 @@
-﻿namespace Rx.IB2.Services.IbApiHandlers;
+﻿using Rx.IB2.Extensions;
+
+namespace Rx.IB2.Services.IbApiHandlers;
 
 public partial class IbApiHandler {
     public void error(Exception e) {
@@ -25,7 +27,7 @@ public partial class IbApiHandler {
             // Request already cancelled, error from it should be fine getting disregarded
             return;
         }
-        
+
         Log.Error("#{RequestId}: [{Code}] {Message}", requestId, errorCode, errorMsg);
     }
 
@@ -40,5 +42,11 @@ public partial class IbApiHandler {
 
     public void connectionClosed() {
         Log.Information("Connection to IB API closed");
+
+        Task.Run(async () => {
+            Log.Information("Will try to reconnect to IB API after 10 secs");
+            await Task.Delay(10000);
+            ClientSocket.Connect(Config);
+        });
     }
 }

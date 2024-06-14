@@ -8,6 +8,15 @@ namespace Rx.IB2.Extensions;
 public static class ClientSocketExtensions {
     private static readonly ILogger Log = Serilog.Log.ForContext(typeof(ClientSocketExtensions));
 
+    public static void Connect(this EClientSocket clientSocket, IConfiguration config) {
+        var section = config.GetSection("TWS");
+        var port = section.GetValue<int>("Port");
+        var clientId = section.GetValue<int>("ClientId");
+
+        Log.Information("Connecting IB API at port {Port} of client ID {ClientId}", port, clientId);
+        clientSocket.eConnect("localhost", port, clientId);
+    }
+
     public static void CheckMargin(
         this EClientSocket clientSocket,
         IbApiRequestManager requestManager,
@@ -46,7 +55,7 @@ public static class ClientSocketExtensions {
         );
 
         clientSocket.reqContractDetails(requestId, contract);
-        
+
         return requestId;
     }
 }
