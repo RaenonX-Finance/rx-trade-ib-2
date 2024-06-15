@@ -96,8 +96,10 @@ public static partial class ContractExtensions {
                 $"{contract.Symbol} {contract.LastTradeDateOrContractMonth} {contract.Right} {contract.Strike} [{contract.ConId}]",
             SecurityType.OptionsCombo =>
                 $"{contract.Symbol} @ {contract.Exchange} [{contract.ConId}]",
-            _ => throw new ArgumentOutOfRangeException(nameof(contract),
-                $"Invalid security type for custom contract symbol conversion: {securityType}")
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(contract),
+                $"Invalid security type for custom contract symbol conversion: {securityType}"
+            )
         };
     }
 

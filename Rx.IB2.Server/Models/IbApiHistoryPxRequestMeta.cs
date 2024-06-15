@@ -15,4 +15,14 @@ public record IbApiHistoryPxRequestMeta {
 
     [UsedImplicitly]
     public required bool IsSubscription { get; init; }
+
+    public double ValueMultiplier =>
+        DataType switch {
+            HistoryDataType.Midpoint or HistoryDataType.Trades => 1,
+            HistoryDataType.OptionImpliedVolatility or HistoryDataType.HistoricalVolatility => 100,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(DataType),
+                $"Invalid history data type for getting the value multiplier: {DataType}"
+            )
+        };
 }

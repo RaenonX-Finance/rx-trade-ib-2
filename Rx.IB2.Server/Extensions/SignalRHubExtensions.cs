@@ -22,8 +22,11 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendAccountSummary(
-        this IHubContext<SignalRHub> hub, AccountSummaryKey summaryKey,
-        string account, string currency, string value
+        this IHubContext<SignalRHub> hub,
+        AccountSummaryKey summaryKey,
+        string account,
+        string currency,
+        string value
     ) {
         Log.Information(
             "SignalR sends account summary of {Account} - {Key}: {Value}",
@@ -43,8 +46,12 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendAccountPnLUpdate(
-        this IHubContext<SignalRHub> hub, int requestId,
-        string account, double dailyPnl, double unrealizedPnl, double realizedPnl
+        this IHubContext<SignalRHub> hub,
+        int requestId,
+        string account,
+        double dailyPnl,
+        double unrealizedPnl,
+        double realizedPnl
     ) {
         Log.Information(
             "#{RequestId}: SignalR sends account update of {Account} - Daily PnL {DailyPnL:+0.00;-#.00}",
@@ -110,7 +117,11 @@ public static class SignalRHubExtensions {
     }
 
     private static void SendOrder(
-        IHubContext<SignalRHub> hub, SignalREvents signalREvent, int orderId, Contract contract, Order order,
+        IHubContext<SignalRHub> hub,
+        SignalREvents signalREvent,
+        int orderId,
+        Contract contract,
+        Order order,
         bool isCompletedOrder
     ) {
         var orderPx = order.LmtPrice.MaxValueAsZero();
@@ -143,7 +154,10 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendCompletedOrderRecord(
-        this IHubContext<SignalRHub> hub, int orderPermId, Contract contract, Order order
+        this IHubContext<SignalRHub> hub,
+        int orderPermId,
+        Contract contract,
+        Order order
     ) {
         Log.Information(
             "SignalR sends order completed of [{ContractId}]: {OrderInfo}",
@@ -154,7 +168,10 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendOpenOrderRecord(
-        this IHubContext<SignalRHub> hub, int orderPermId, Contract contract, Order order
+        this IHubContext<SignalRHub> hub,
+        int orderPermId,
+        Contract contract,
+        Order order
     ) {
         Log.Information(
             "SignalR sends order open of [{ContractId}]: {OrderInfo}",
@@ -165,7 +182,11 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendOrderUpdate(
-        this IHubContext<SignalRHub> hub, int orderPermId, string account, decimal filled, decimal remaining
+        this IHubContext<SignalRHub> hub,
+        int orderPermId,
+        string account,
+        decimal filled,
+        decimal remaining
     ) {
         filled = filled.MaxValueAsZero();
         remaining = remaining.MaxValueAsZero();
@@ -206,8 +227,13 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendPositionUpdate(
-        this IHubContext<SignalRHub> hub, string account, ContractModel contract,
-        decimal quantity, double avgPx, double unrealizedPnl, double marketValue
+        this IHubContext<SignalRHub> hub,
+        string account,
+        ContractModel contract,
+        decimal quantity,
+        double avgPx,
+        double unrealizedPnl,
+        double marketValue
     ) {
         Log.Information(
             "SignalR sends position update of {Account}: {Symbol} x {Quantity} @ {AvgPx:0.00} ({UnrealizedPnL:+0.00;-#.00})",
@@ -231,8 +257,15 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendPositionPnLUpdate(
-        this IHubContext<SignalRHub> hub, int requestId, string account, int contractId, decimal quantity,
-        double dailyPnl, double unrealizedPnl, double realizedPnl, double marketValue
+        this IHubContext<SignalRHub> hub,
+        int requestId,
+        string account,
+        int contractId,
+        decimal quantity,
+        double dailyPnl,
+        double unrealizedPnl,
+        double realizedPnl,
+        double marketValue
     ) {
         Log.Information(
             "#{RequestId}: SignalR sends position PnL update of {Account}: [{ContractId}] x {Quantity} " +
@@ -259,7 +292,11 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendPxUpdate(
-        this IHubContext<SignalRHub> hub, int requestId, int contractId, PxTick tick, double value
+        this IHubContext<SignalRHub> hub,
+        int requestId,
+        int contractId,
+        PxTick tick,
+        double value
     ) {
         Log.Information(
             "#{RequestId}: SignalR sends single price update of [{ContractId}]: {Tick} as {Value:0.00}",
@@ -280,7 +317,10 @@ public static class SignalRHubExtensions {
     }
 
     public static void SendPxUpdate(
-        this IHubContext<SignalRHub> hub, int requestId, int contractId, Dictionary<PxTick, double> update
+        this IHubContext<SignalRHub> hub,
+        int requestId,
+        int contractId,
+        Dictionary<PxTick, double> update
     ) {
         Log.Information(
             "#{RequestId}: SignalR sends multiple price update of [{ContractId}]: {@Update}",
@@ -329,10 +369,10 @@ public static class SignalRHubExtensions {
                 Meta = meta,
                 Bars = bars.Select(x => new ChartDataBar {
                     EpochSec = x.Timestamp.ToEpochSeconds(),
-                    Open = x.Open == 0 ? null : x.Open,
-                    High = x.High == 0 ? null : x.High,
-                    Low = x.Low == 0 ? null : x.Low,
-                    Close = x.Close == 0 ? null : x.Close
+                    Open = x.Open == 0 ? null : x.Open * meta.ValueMultiplier,
+                    High = x.High == 0 ? null : x.High * meta.ValueMultiplier,
+                    Low = x.Low == 0 ? null : x.Low * meta.ValueMultiplier,
+                    Close = x.Close == 0 ? null : x.Close * meta.ValueMultiplier
                 })
             }
         );
