@@ -199,14 +199,6 @@ public partial class IbApiHandler {
             end
         );
 
-        if (HistoryPxRequestManager.ReleaseLock(requestId)) {
-            Log.Information("#{RequestId}: History Px lock released", requestId);
-        }
-
-        if (!HistoryPxRequestManager.IsSubscription(requestId)) {
-            return;
-        }
-
         var meta = HistoryPxRequestManager.GetMeta(requestId);
         if (meta is null) {
             Log.Warning("#{RequestId}: History Px does not have associated metadata", requestId);
