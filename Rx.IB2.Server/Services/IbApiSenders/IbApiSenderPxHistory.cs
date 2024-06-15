@@ -28,20 +28,29 @@ public partial class IbApiSender {
     }
 
     public List<int?> SubscribeOptionVolatilityHistory(OptionVolatilityHistoryRequest request) {
-        var requestId = RequestManager.GetNextRequestId(
+        var requestIdForIv = RequestManager.GetNextRequestId(
             IbApiRequestType.History,
             request.Account
         );
-
         Log.Information(
-            "#{RequestId}: Requesting volatility history of {Symbol}",
-            requestId,
+            "#{RequestId}: Requesting volatility history of {Symbol} (IV)",
+            requestIdForIv,
+            request.Symbol
+        );
+        
+        var requestIdForHv = RequestManager.GetNextRequestId(
+            IbApiRequestType.History,
+            request.Account
+        );
+        Log.Information(
+            "#{RequestId}: Requesting volatility history of {Symbol} (HV)",
+            requestIdForHv,
             request.Symbol
         );
 
         return [
-            RequestPxHistory(request.AsHistoryVolatilityRequestHv(), requestId),
-            RequestPxHistory(request.AsHistoryVolatilityRequestIv(), requestId),
+            RequestPxHistory(request.AsHistoryVolatilityRequestIv(), requestIdForIv),
+            RequestPxHistory(request.AsHistoryVolatilityRequestHv(), requestIdForHv)
         ];
     }
 
