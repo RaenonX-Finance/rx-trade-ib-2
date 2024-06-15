@@ -13,8 +13,13 @@ public static class DatetimeExtensions {
 
     public static DateTime FromHistoricalPxTimestampToUtc(this string timestamp) {
         var timestampComponents = timestamp.Split(" ");
-        var datetimeString = string.Join(" ", timestampComponents[..2]);
-        var ianaTimezone = timestampComponents[2];
+
+        var isDateOnly = timestampComponents.Length == 1;
+        
+        var datetimeString = isDateOnly ? 
+            $"{timestampComponents[0]} 00:00:00" : 
+            string.Join(" ", timestampComponents[..2]);
+        var ianaTimezone = isDateOnly ? "America/New_York" : timestampComponents[2];
 
         return TimeZoneInfo.ConvertTimeToUtc(
             DateTime.ParseExact(datetimeString, "yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture),
