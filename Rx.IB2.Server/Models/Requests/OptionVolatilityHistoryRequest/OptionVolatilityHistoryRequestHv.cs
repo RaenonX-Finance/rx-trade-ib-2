@@ -13,7 +13,7 @@ public readonly struct OptionVolatilityHistoryRequestHv : IHistoryPxRequest {
 
     public bool RthOnly => true;
 
-    public bool IsSubscription => true;
+    public bool IsSubscription => false;
 
-    public string Duration => "6M";
+    public string Duration => "1 Y";
 }
