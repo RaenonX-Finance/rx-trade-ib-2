@@ -30,8 +30,10 @@ public partial class IbApiHandler {
         }
 
         Log.Information(
-            "#{RequestId}: All target ticks have been received, cancelling market data subscription",
-            requestIdToCancel
+            "#{RequestId}: All target ticks have been received, cancelling market data subscription ({Active} active left - {@ActiveRequestIds})",
+            requestIdToCancel,
+            OneTimePxRequestManager.ActiveRequests.Count,
+            OneTimePxRequestManager.ActiveRequests
         );
         CancelMarketData(requestId);
 
@@ -152,8 +154,10 @@ public partial class IbApiHandler {
 
         if (requestIdToCancel is not null) {
             Log.Information(
-                "#{RequestId}: All target ticks have been received, cancelling market data subscription",
-                requestIdToCancel
+                "#{RequestId}: All target ticks have been received, cancelling market data subscription ({Active} active left - {@ActiveRequestIds})",
+                requestIdToCancel,
+                OneTimePxRequestManager.ActiveRequests.Count,
+            OneTimePxRequestManager.ActiveRequests
             );
             CancelMarketData(requestId);
         }

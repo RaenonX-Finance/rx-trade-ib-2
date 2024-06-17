@@ -148,6 +148,8 @@ public partial class IbApiSender {
 
         var contracts = new ConcurrentDictionary<OptionsContractDictKey, Contract>();
 
+        // Requesting realtime and frozen separately to avoid keep switching in-between
+        // --- Request realtime
         foreach (var expiry in request.Expiry) {
             var tasksOfExpiry = new List<Task>();
 
@@ -177,7 +179,6 @@ public partial class IbApiSender {
                         ),
                         OptionPxTargetTicks
                     );
-                    RequestFrozenRealtimeFromContract(request.Account, callContract, OptionPxTargetTicks);
                 }));
                 await Throttle();
                 tasksOfExpiry.Add(Task.Run(() => {
@@ -204,13 +205,17 @@ public partial class IbApiSender {
                         ),
                         OptionPxTargetTicks
                     );
-                    RequestFrozenRealtimeFromContract(request.Account, putContract, OptionPxTargetTicks);
                 }));
                 await Throttle();
             }
 
             // Wait for all the tasks of the current `expiry` to complete before requesting another `expiry`
             await Task.WhenAll(tasksOfExpiry);
+        }
+
+        // --- Request frozen
+        foreach (var contract in contracts.Values) {
+            RequestFrozenRealtimeFromContract(request.Account, contract, OptionPxTargetTicks);
         }
 
         return new OptionPxResponse {

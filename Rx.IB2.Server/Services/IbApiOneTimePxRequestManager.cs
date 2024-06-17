@@ -18,12 +18,15 @@ public class IbApiOneTimePxRequestManager {
         );
     }
 
+    public ICollection<int> ActiveRequests => _received.Keys;
+
     private int? GetRequestIdIfReceivedAll(int requestId) {
-        if (_received[requestId].IsSupersetOf(_target[requestId])) {
-            return requestId;
+        if (!_received[requestId].IsSupersetOf(_target[requestId])) {
+            return null;
         }
 
-        return null;
+        _received.Remove(requestId, out _);
+        return requestId;
     }
 
     public int? RecordReceivedSingle(int requestId, PxTick tick) {
