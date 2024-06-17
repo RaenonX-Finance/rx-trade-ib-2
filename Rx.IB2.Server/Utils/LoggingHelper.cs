@@ -33,11 +33,8 @@ public class LoggingHelper(IConfiguration config, IHostEnvironment host) {
             .Enrich.WithProcessId()
             .Enrich.WithThreadId()
             .Enrich.With(new UtcTimestampEnricher())
-            .MinimumLevel.Information();
-
-        if (host.IsDevelopment()) {
-            loggerConfig = loggerConfig.WriteTo.Console(outputTemplate: OutputTemplate);
-        }
+            .MinimumLevel.Information()
+            .WriteTo.Console(outputTemplate: OutputTemplate);
 
         if (logDir is not null) {
             loggerConfig = loggerConfig.WriteTo.File(
