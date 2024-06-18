@@ -157,7 +157,7 @@ public partial class IbApiHandler {
                 "#{RequestId}: All target ticks have been received, cancelling market data subscription ({Active} active left - {@ActiveRequestIds})",
                 requestIdToCancel,
                 OneTimePxRequestManager.ActiveRequests.Count,
-            OneTimePxRequestManager.ActiveRequests
+                OneTimePxRequestManager.ActiveRequests
             );
             CancelMarketData(requestId);
         }

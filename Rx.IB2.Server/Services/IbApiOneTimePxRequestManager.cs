@@ -6,6 +6,8 @@ namespace Rx.IB2.Services;
 public class IbApiOneTimePxRequestManager {
     private readonly ConcurrentDictionary<int, HashSet<PxTick>> _received = new();
 
+    private readonly ConcurrentBag<int> _cancelled = [];
+
     private readonly ConcurrentDictionary<int, HashSet<PxTick>> _target = new();
 
     public void RecordTarget(int requestId, IEnumerable<PxTick> targetTicks) {
@@ -26,6 +28,7 @@ public class IbApiOneTimePxRequestManager {
         }
 
         _received.Remove(requestId, out _);
+        _cancelled.Add(requestId);
         return requestId;
     }
 
@@ -34,7 +37,10 @@ public class IbApiOneTimePxRequestManager {
             return null;
         }
 
-        _received.GetOrAdd(requestId, []).Add(tick);
+        // Only record requests that are not cancelled
+        if (!_cancelled.Contains(requestId)) {
+            _received.GetOrAdd(requestId, []).Add(tick);
+        }
 
         return GetRequestIdIfReceivedAll(requestId);
     }
@@ -44,7 +50,10 @@ public class IbApiOneTimePxRequestManager {
             return null;
         }
 
-        _received.GetOrAdd(requestId, []).UnionWith(ticks);
+        // Only record requests that are not cancelled
+        if (!_cancelled.Contains(requestId)) {
+            _received.GetOrAdd(requestId, []).UnionWith(ticks);
+        }
 
         return GetRequestIdIfReceivedAll(requestId);
     }
