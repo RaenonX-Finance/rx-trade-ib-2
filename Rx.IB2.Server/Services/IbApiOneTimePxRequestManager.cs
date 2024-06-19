@@ -23,7 +23,7 @@ public class IbApiOneTimePxRequestManager {
     public ICollection<int> ActiveRequests => _received.Keys;
 
     private int? GetRequestIdIfReceivedAll(int requestId) {
-        if (!_received[requestId].IsSupersetOf(_target[requestId])) {
+        if (!_received.GetValueOrDefault(requestId)?.IsSupersetOf(_target[requestId]) ?? true) {
             return null;
         }
 
