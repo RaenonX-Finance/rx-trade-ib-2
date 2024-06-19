@@ -24,6 +24,9 @@ public record DateInterval {
 
         return maybeIntervals
             .Split(";")
+            // Excludes the case where a trading session is "closed"
+            // Sample message: 20240619:CLOSED;20240620:0930-20240620:1600
+            .Where(interval => interval.Split(":")[1] != "CLOSED")
             .Select(interval => interval.Split("-"))
             .Select(splitInterval => new DateInterval {
                 Start = TimeZoneInfo.ConvertTimeToUtc(
