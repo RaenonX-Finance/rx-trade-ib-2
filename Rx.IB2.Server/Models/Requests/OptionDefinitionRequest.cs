@@ -15,7 +15,4 @@ public readonly struct OptionDefinitionRequest {
 
     [UsedImplicitly]
     public required int? InUseContractId { get; init; }
-
-    [UsedImplicitly]
-    public required List<int> InUsePxRequestIds { get; init; }
 }

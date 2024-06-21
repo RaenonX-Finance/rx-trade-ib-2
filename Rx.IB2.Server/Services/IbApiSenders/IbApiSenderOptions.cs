@@ -14,17 +14,6 @@ public partial class IbApiSender {
     public void RequestOptionDefinitions(OptionDefinitionRequest request) {
         Log.Information("Requesting option definitions of {Symbol}", request.Symbol);
 
-        if (request.InUsePxRequestIds.Count > 0) {
-            Log.Information(
-                "To cancel market data subscription of the following requests: {@RequestIds}",
-                request.InUsePxRequestIds
-            );
-        }
-
-        foreach (var pxRequestId in request.InUsePxRequestIds) {
-            ClientSocket.cancelMktData(pxRequestId);
-        }
-
         if (request.InUseContractId is not null) {
             CancelRealtime(request.Account, request.InUseContractId.Value);
         }

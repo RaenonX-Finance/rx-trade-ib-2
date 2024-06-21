@@ -96,9 +96,16 @@ public class SignalRHub(
     }
 
     public Task RequestOptionDefinitions(OptionDefinitionRequest request) {
-        logger.Log(LogLevel.Information, "Received option definition request of {Symbol}", request.Symbol);
+        logger.LogInformation("Received option definition request of {Symbol}", request.Symbol);
         Sender.RequestOptionDefinitions(request);
 
+        return Task.CompletedTask;
+    }
+
+    public Task CancelRealtime(CancelRealtimeRequest request) {
+        foreach (var requestId in request.RequestIds) {
+            Sender.CancelRealtime(requestId);
+        }
         return Task.CompletedTask;
     }
 

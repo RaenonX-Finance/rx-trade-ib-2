@@ -18,7 +18,7 @@ public partial class IbApiSender {
                 Log.Information("#{RequestId}: Cancelling {RequestType} request", request.Id, request.Type);
                 switch (request.Type) {
                     case IbApiRequestType.Realtime:
-                        ClientSocket.cancelMktData(request.Id);
+                        CancelRealtime(request.Id);
                         break;
                     case IbApiRequestType.PnL:
                         ClientSocket.cancelPnL(request.Id);

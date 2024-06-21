@@ -15,10 +15,15 @@ public partial class IbApiSender {
         );
         foreach (var requestId in requestIds) {
             Log.Information("#{RequestId}: Cancelling realtime data of [{ContractId}]", requestId, contractId);
-            ClientSocket.cancelMktData(requestId);
+            CancelRealtime(requestId);
         }
 
         RequestManager.ClearByContractId(IbApiRequestType.Realtime, account, contractId);
+    }
+
+    public void CancelRealtime(int requestId) {
+        Log.Information("#{RequestId}: Cancelling market data of the request", requestId);
+        ClientSocket.cancelMktData(requestId);
     }
 
     private int? SubscribeRealtimeFrozen(string account, ContractDetails contractDetails) {
