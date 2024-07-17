@@ -12,7 +12,9 @@ public static class PxExtensions {
         PxTick.Close
     ];
 
-    private static readonly HashSet<PxTick> PxTicksToIncludeForStocks = [];
+    private static readonly HashSet<PxTick> PxTicksToIncludeForStocks = [
+        PxTick.AverageVolume
+    ];
 
     private static readonly HashSet<PxTick> PxTicksToIncludeForOptions = [
         PxTick.Mark,

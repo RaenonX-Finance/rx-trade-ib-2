@@ -24,6 +24,7 @@ public enum PxTick {
     LastOfOptions = 12,
     ModelOptionPx = 13,
     OpenTick = 14, // Current session opening price, previous day open before open
+    AverageVolume = 21,
     OptionCallOpenInterest = 27,
     OptionPutOpenInterest = 28,
     OptionCallVolume = 29,

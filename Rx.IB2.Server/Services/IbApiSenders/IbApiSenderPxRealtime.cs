@@ -66,6 +66,10 @@ public partial class IbApiSender {
             tickToRequest.Add(MarketPxRequestTick.OptionVolume);
         }
 
+        if (securityType == SecurityType.Stocks) {
+            tickToRequest.Add(MarketPxRequestTick.StockStats);
+        }
+
         Log.Information(
             "#{RequestId}: Subscribing realtime data of {CustomContractSymbol} ({MarketDataType})",
             requestId,

@@ -7,6 +7,7 @@
 public enum MarketPxRequestTick {
     OptionVolume = 100,
     OptionOpenInterest = 101,
+    StockStats = 165,
     Mark = 221,
     RtVolume = 233  // Last Trade Px/Size, Volume, VWAP
 }

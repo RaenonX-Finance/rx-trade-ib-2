@@ -68,11 +68,13 @@ public partial class IbApiHandler {
             return;
         }
 
+        var actualSizeOfDouble = decimal.ToDouble(actualSize.Value);
+
         Hub.SendPxUpdate(
             requestId,
             contract.ConId,
             tick,
-            decimal.ToDouble(actualSize.Value)
+            tick == PxTick.AverageVolume ? actualSizeOfDouble * 100 : actualSizeOfDouble
         );
     }
 
