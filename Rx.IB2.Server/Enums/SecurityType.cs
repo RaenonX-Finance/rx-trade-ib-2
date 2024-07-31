@@ -3,6 +3,7 @@
 public enum SecurityType {
     Stocks,
     Futures,
+    FuturesOptions,
     ContinuousFutures,
     Options,
     OptionsCombo

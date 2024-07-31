@@ -77,6 +77,7 @@ public static class EnumExtensions {
         return securityType switch {
             SecurityType.Stocks => "STK",
             SecurityType.Futures => "FUT",
+            SecurityType.FuturesOptions => "FOP",
             SecurityType.ContinuousFutures => "CONTFUT",
             SecurityType.Options => "OPT",
             SecurityType.OptionsCombo => "BAG",

@@ -73,6 +73,7 @@ public static class StringExtensions {
         return securityType switch {
             "STK" => SecurityType.Stocks,
             "FUT" => SecurityType.Futures,
+            "FOP" => SecurityType.FuturesOptions,
             "CONTFUT" => SecurityType.ContinuousFutures,
             "OPT" => SecurityType.Options,
             "BAG" => SecurityType.OptionsCombo,

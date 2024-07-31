@@ -92,6 +92,8 @@ public static partial class ContractExtensions {
         return securityType switch {
             SecurityType.Stocks or SecurityType.Futures or SecurityType.ContinuousFutures =>
                 $"{contract.Symbol} @ {contract.Exchange} [{contract.ConId}]",
+            SecurityType.FuturesOptions =>
+                $"{contract.Symbol} {contract.LastTradeDateOrContractMonth} {contract.Right} {contract.Strike} [{contract.ConId}]",
             SecurityType.Options =>
                 $"{contract.Symbol} {contract.LastTradeDateOrContractMonth} {contract.Right} {contract.Strike} [{contract.ConId}]",
             SecurityType.OptionsCombo =>
